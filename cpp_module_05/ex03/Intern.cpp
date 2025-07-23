@@ -38,6 +38,28 @@ Intern &Intern::operator = (const Intern &other)
 	return (*this);
 }
 
+// AForm* Intern::makeForm(const std::string& formName, const std::string& target) {
+//     struct { const char* name; FormCreator creator; } forms[] = {
+//         {"shrubbery creation", createShrubbery},
+//         {"robotomy request", createRobotomy},
+//         {"presidential pardon", createPresidential}
+//     };
+//     for (size_t i = 0; i < 3; ++i) {
+//         if (formName == forms[i].name) {
+//             std::cout << "Intern creates " << formName << std::endl;
+//             return forms[i].creator(target);
+//         }
+//     }
+//     std::cerr << "Intern: form name not found!" << std::endl;
+
+	// std::string formNames[] = {"presidential pardon", "robotomy request", "shrubbery creation"};
+	// AForm *(Intern::*forms[3])(std::string) = {&Intern::makePPF, &Intern::makeRRF, &Intern::makeSCF};
+	// for (int i = 0; i < 3; i++)
+	// {
+	// 	if (formNames[i] == form)
+	// 		return (this->*forms[i])(target);
+	// }
+
 Intern & makeForm(std::string name, std::string target)
 {
 	void		formClasses[3] = {}
