@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ShrubberyCreationForm.hpp                          :+:      :+:    :+:   */
+/*   PresidentialPardonForm.hpp                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dbozic <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/17 16:23:02 by dbozic            #+#    #+#             */
-/*   Updated: 2025/07/17 16:23:02 by dbozic           ###   ########.fr       */
+/*   Created: 2025/07/22 17:53:28 by dbozic            #+#    #+#             */
+/*   Updated: 2025/07/22 17:53:29 by dbozic           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SHRUBBERYCREATIONFORM_HPP
-# define SHRUBBERYCREATIONFORM_HPP
+#ifndef PRESIDENTIALPARDONFORM_HPP
+# define PRESIDENTIALPARDONFORM_HPP
 # include "string.h"
 # include <exception>
 # include <fstream>
@@ -21,21 +21,21 @@
 class Bureaucrat;
 class AForm;
 
-class ShrubberyCreationForm : public AForm
+class PresidentialPardonForm : public AForm
 {
 	private:
 		std::string	target;
 
 	public:
-		ShrubberyCreationForm();
-		ShrubberyCreationForm(std::string target);
-		ShrubberyCreationForm(const ShrubberyCreationForm &Form);
-		~ShrubberyCreationForm();
+		PresidentialPardonForm();
+		PresidentialPardonForm(std::string target);
+		PresidentialPardonForm(const PresidentialPardonForm &Form);
+		~PresidentialPardonForm();
 		std::string getTarget(void) const;
-		ShrubberyCreationForm &operator = (const ShrubberyCreationForm &form);
+		PresidentialPardonForm &operator = (const PresidentialPardonForm &form);
 		void execute(void) const;
 };
 
-std::ostream &operator << (std::ostream &os, const ShrubberyCreationForm &shrubberyCreationForm);
+std::ostream &operator << (std::ostream &os, const PresidentialPardonForm &PresidentialPardonForm);
 
 #endif

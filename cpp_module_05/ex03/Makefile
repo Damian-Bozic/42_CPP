@@ -13,9 +13,9 @@
 CC = c++
 FLAGS = -Wall -Wextra -Werror -std=c++98
 SOURCES = main.cpp Bureaucrat.cpp AForm.cpp ShrubberyCreationForm.cpp \
-			RobotomyRequestForm.cpp PresidentialPardonForm.cpp
+			RobotomyRequestForm.cpp PresidentialPardonForm.cpp Intern.cpp
 OBJECTS = $(SOURCES:%.cpp=%.o)
-PROGRAM = Wrong_form_sir
+PROGRAM = Unpaid_Interns.._A_Timeless_Classic
 
 all: $(PROGRAM)
 
