@@ -38,62 +38,44 @@ Intern &Intern::operator = (const Intern &other)
 	return (*this);
 }
 
-// AForm* Intern::makeForm(const std::string& formName, const std::string& target) {
-//     struct { const char* name; FormCreator creator; } forms[] = {
-//         {"shrubbery creation", createShrubbery},
-//         {"robotomy request", createRobotomy},
-//         {"presidential pardon", createPresidential}
-//     };
-//     for (size_t i = 0; i < 3; ++i) {
-//         if (formName == forms[i].name) {
-//             std::cout << "Intern creates " << formName << std::endl;
-//             return forms[i].creator(target);
-//         }
-//     }
-//     std::cerr << "Intern: form name not found!" << std::endl;
-
-	// std::string formNames[] = {"presidential pardon", "robotomy request", "shrubbery creation"};
-	// AForm *(Intern::*forms[3])(std::string) = {&Intern::makePPF, &Intern::makeRRF, &Intern::makeSCF};
-	// for (int i = 0; i < 3; i++)
-	// {
-	// 	if (formNames[i] == form)
-	// 		return (this->*forms[i])(target);
-	// }
-
-Intern & makeForm(std::string name, std::string target)
+AForm *Intern::makeForm(std::string name, std::string target)
 {
-	void		formClasses[3] = {}
-	std::string forms[3] = {
+	AForm 		*(Intern::*forms[3])(std::string) = {
+		&Intern::makePPF,
+		&Intern::makeRRF,
+		&Intern::makeSCF};
+		
+	std::string	formsNames[3] = {
 		"Presidential Pardon Form",
 		"Robotomy Request Form",
-		"Shrubbery Creation Form"}
+		"Shrubbery Creation Form"};
+	
+	for (int i = 0; i < 3; i++)
+	{
+		if (formsNames[i] == name)
+			return ((this->*forms[i])(target));
+	}
+	std::cerr << "Error: Bad form name" << std::endl;
+	return (NULL);
+}
 
-	// switch ()
-	// {	I LOVE IF ELSE TREES OVER THIS
-	// 	case name.compare("Presidential Pardon Form") == 0:
-	// 		std::cout << "noob dickhead" << std::endl;
-	// 		break;
-	// 	case name.compare("Robotomy Request Form") == 0:
-	// 		std::cout << "bot dickhead" << std::endl;
-	// 		break;
-	// 	case name.compare("Shrubbery Creation Form") == 0:
-	// 		std::cout << "shrubs dickhead" << std::endl;
-	// 		break;
-	// 	default:
-	// 		std::cout << "fucking error" << std::endl;
-	// }
+AForm *Intern::makePPF(std::string target)
+{
+	PresidentialPardonForm *ppf;
+	ppf = new PresidentialPardonForm(target);
+	return (ppf);
+}
 
-	// if (name.compare("Presidential Pardon Form") == 0)
-	// {
+AForm *Intern::makeRRF(std::string target)
+{
+	RobotomyRequestForm *rrf;
+	rrf = new RobotomyRequestForm(target);
+	return (rrf);
+}
 
-	// }
-	// else if (name.compare("Robotomy Request Form") == 0)
-	// {
-		
-	// }
-	// else if (name.compare("Shrubbery Creation Form") == 0)
-	// {
-		
-	// }
-	// else
+AForm *Intern::makeSCF(std::string target)
+{
+	ShrubberyCreationForm *scf;
+	scf = new ShrubberyCreationForm(target);
+	return (scf);
 }

@@ -19,12 +19,17 @@
 
 class Intern
 {
+	private:
+		AForm *makePPF(std::string target);
+		AForm *makeRRF(std::string target);
+		AForm *makeSCF(std::string target);
+
 	public:
 		Intern();
 		Intern(const Intern &intern);
 		~Intern();
 		Intern &operator = (const Intern &other);
-		AForm & makeForm(std::string name, std::string target);
+		AForm *makeForm(std::string name, std::string target);
 };
 
 std::ostream &operator << (std::ostream &os, const AForm &aForm);
