@@ -18,9 +18,5 @@
 int	main(int argc, char **argv)
 {
 	if (argc == 2)
-	{
-		std::string input_argument = argv[1];
-		std::cout << input_argument << std::endl;
-		ScalarConverter::convert(input_argument);
-	}
+		ScalarConverter::convert(argv[1]);
 }

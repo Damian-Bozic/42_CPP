@@ -17,10 +17,16 @@
 # include <climits>
 # include <cfloat>
 # include <limits>
+# include <cmath> 
+# include <sstream>
 # define	CHAR 1
 # define	INT 2
 # define	FLOAT 3
 # define	DOUBLE 4
+# define	MAX_INT_CHAR_LENGTH 10
+# define	MIN_INT_CHAR_LENGTH 11
+# define	CHAR_LITERAL_CHAR_LENGTH 3
+# define	ASCII_TABLE_SIZE 127
 
 class ScalarConverter
 {

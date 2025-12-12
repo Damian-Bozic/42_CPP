@@ -10,58 +10,6 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ScalarConverter.hpp"
-
-ScalarConverter::ScalarConverter()
-{
-	
-}
-
-// ScalarConverter::ScalarConverter(void)
-// {
-// }
-
-ScalarConverter::ScalarConverter(const ScalarConverter &other)
-{
-	static_cast<void>(other);
-}
-
-ScalarConverter::~ScalarConverter()
-{
-
-}
-
-int checkLiteralType(std::string literal)
-{
-	if (literal.empty())
-		return (INT);
-	if (literal.length() == 3 && literal.at(0) == '\'' && literal.at(2) == '\'')
-		return (CHAR);
-	if (literal.compare("+inff") == 0 || literal.compare("-inff") == 0 || literal.compare("nanf") == 0)
-		return (FLOAT);
-	if (literal.compare("+inf") == 0 || literal.compare("-inf") == 0 || literal.compare("nan") == 0)
-		return (DOUBLE);
-	if (literal.find('.') != std::string::npos)
-	{
-		if (literal.at(literal.length() - 1) == 'f')
-			return (FLOAT);
-		return (DOUBLE);
-	}
-	return (INT);
-}
-
-void resolveChar(std::string literal)
-{
-	std::cout << "resolveChar" << std::endl;
-	if (std::isgraph(static_cast <char> (literal.at(1))) == false)
-		std::cout << "char: Non-displayable" << std::endl;
-	else
-		std::cout << "char: " << literal << std::endl;
-	std::cout << "int: " << static_cast <int> (literal.at(1)) << std::endl;
-	std::cout << "float: " << static_cast <float> (literal.at(1)) << ".0f" << std::endl;
-	std::cout << "double: " << static_cast <double> (literal.at(1)) << ".0" << std::endl;
-}
-
 // template<typename D>
 // std::string	getEvery(D literal) {
 // 	if (std::numeric_limits<D>::min() < literal || std::numeric_limits<D>::max() > limits)
@@ -110,6 +58,42 @@ void resolveChar(std::string literal)
 // template<typename Type>
 
 
+
+#include "ScalarConverter.hpp"
+
+ScalarConverter::ScalarConverter()
+{
+	
+}
+
+// ScalarConverter::ScalarConverter(void)
+// {
+// }
+
+ScalarConverter::ScalarConverter(const ScalarConverter &other)
+{
+	static_cast<void>(other);
+}
+
+ScalarConverter::~ScalarConverter()
+{
+
+}
+
+/*
+
+void resolveChar(std::string literal)
+{
+	std::cout << "resolveChar" << std::endl;
+	if (std::isgraph(static_cast <char> (literal.at(1))) == false)
+		std::cout << "char: Non-displayable" << std::endl;
+	else
+		std::cout << "char: " << literal << std::endl;
+	std::cout << "int: " << static_cast <int> (literal.at(1)) << std::endl;
+	std::cout << "float: " << static_cast <float> (literal.at(1)) << ".0f" << std::endl;
+	std::cout << "double: " << static_cast <double> (literal.at(1)) << ".0" << std::endl;
+}
+
 // for the love of god unit test this TODO
 void resolveInt(std::string literal)
 {
@@ -156,20 +140,40 @@ void resolveDouble(std::string literal)
 {
 	std::cout << "resolveDouble" << std::endl; //TODO remove this
 	std::cout << literal << std::endl; //TODO remove this
+} */
+
+static int checkLiteralType(std::string literal)
+{
+	if (literal.empty())
+		return (INT);
+	if (literal.length() == 3 && literal.at(0) == '\'' && literal.at(2) == '\'')
+		return (CHAR);
+	if (literal.compare("+inff") == 0 || literal.compare("-inff") == 0 || literal.compare("nanf") == 0)
+		return (FLOAT);
+	if (literal.compare("+inf") == 0 || literal.compare("-inf") == 0 || literal.compare("nan") == 0)
+		return (DOUBLE);
+	if (literal.find('.') != std::string::npos)
+	{
+		if (literal.at(literal.length() - 1) == 'f')
+			return (FLOAT);
+		return (DOUBLE);
+	}
+	return (INT);
 }
 
-bool isInSet(char c, const std::string& set)
+static bool isInSet(char c, const std::string& set)
 {
 	return (set.find(c) != std::string::npos);
 }
 
-bool isValidLiteral(const std::string& literal)
+static bool isValidLiteral(const std::string& literal)
 {
 	size_t	i = 0;
 
 	if (literal.size() == 0 || (literal.size() == 1 && !isdigit(literal.at(0))))
 		return (false); // "" + -
-	if (literal.size() == 3 && literal.at(0) == '\'' && literal.at(2) == '\'')
+	if (literal.size() == CHAR_LITERAL_CHAR_LENGTH && literal.at(0) == '\''
+		&& literal.at(CHAR_LITERAL_CHAR_LENGTH - 1) == '\'')
 		return (true); // 'a'
 	if (literal == "+inf" || literal == "+inff"
 		|| literal == "-inf" || literal == "-inff"
@@ -203,18 +207,83 @@ bool isValidLiteral(const std::string& literal)
 	return (true); // +111 -111 111
 }
 
+template<typename D>
+void resolveLiteral(std::string literal, D cast_literal)
+{
+	if ((literal.size() > MAX_INT_CHAR_LENGTH && atoll(literal.c_str()) > INT_MAX)
+		&& (std::numeric_limits<D>::max() > cast_literal))
+	{
+		std::cout << "char: Impossible" << std::endl;
+		std::cout << "int: Impossible" << std::endl;
+		std::cout << "float: +inff" << std::endl;
+		std::cout << "double: +inf" << std::endl;
+	}
+	else if ((literal.size() > MIN_INT_CHAR_LENGTH && atoll(literal.c_str()) < INT_MIN)
+		&& (std::numeric_limits<D>::min() < cast_literal))
+	{
+		std::cout << "char: Impossible" << std::endl;
+		std::cout << "int: Impossible" << std::endl;
+		std::cout << "float: -inff" << std::endl;
+		std::cout << "double: -inf" << std::endl;
+	}
+	else if (literal == "nan" || literal == "nanf")
+	{
+		std::cout << "char: Impossible" << std::endl;
+		std::cout << "int: Impossible" << std::endl;
+		std::cout << "float: nanf" << std::endl;
+		std::cout << "double: nan" << std::endl;	
+	}
+	else
+	{
+		if (cast_literal > ASCII_TABLE_SIZE || cast_literal < 0)
+			std::cout << "char: Impossible" << std::endl;
+		else if (std::isgraph(static_cast <char> (cast_literal)) == false)
+			std::cout << "char: Non-displayable" << std::endl;
+		else
+			std::cout << "char: \'" << static_cast <char> (cast_literal) << "\'" << std::endl;
+		std::cout << "int: " << static_cast <int> (cast_literal) << std::endl;
+		if (floor(static_cast <double> (cast_literal)) == static_cast <double> (cast_literal))
+			std::cout << "float: " << static_cast <float> (cast_literal) << ".0f" << std::endl;
+		else
+			std::cout << "float: " << static_cast <float> (cast_literal) << "f" << std::endl;
+		if (floor(static_cast <double> (cast_literal)) == static_cast <double> (cast_literal))
+			std::cout << "double: " << static_cast <double> (cast_literal) << ".0" << std::endl;
+		else
+			std::cout << "double: " << static_cast <double> (cast_literal) << std::endl;
+	}
+}
+
 void ScalarConverter::convert(std::string literal)
 {
 	if (!isValidLiteral(literal))
-		resolveDouble("nan");
+		literal = "nan";
 	int	type = checkLiteralType(literal);
 	std::cout << "type number: " << type << std::endl;
-	switch (type)
+	try
 	{
-		case 1: resolveChar(literal); break;
-		case 2: resolveInt(literal); break;
-		case 3: resolveFloat(literal); break;
-		case 4: resolveDouble(literal);
+		switch (type)
+		{
+			case 1:
+				resolveLiteral(literal, static_cast<char>(literal.at(CHAR_LITERAL_CHAR_LENGTH - 2)));
+				break;
+			case 2:
+				resolveLiteral(literal, static_cast<int>(atoi(literal.c_str())));
+				break;
+			case 3:
+				resolveLiteral(literal, static_cast<float>(atof(literal.c_str())));
+				break;
+			case 4:
+			{
+				double	double_literal;
+				std::stringstream ss(literal);
+				ss >> double_literal;
+				resolveLiteral(literal, static_cast<double>(double_literal));
+			}
+		}
+	}
+	catch (std::exception &e)
+	{
+		std::cerr << "ScalarConverter encountered an exception: " << e.what() << std::endl;
 	}
 }
 
