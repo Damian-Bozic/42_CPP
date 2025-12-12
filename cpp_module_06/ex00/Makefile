@@ -12,28 +12,32 @@
 
 CC = c++
 FLAGS = -Wall -Wextra -Werror -std=c++98
+SRC_DIR = srcs/
+OBJ_DIR = objs/
 SOURCES = main.cpp ScalarConverter.cpp
-OBJECTS = $(SOURCES:%.cpp=%.o)
+OBJECTS = $(SOURCES:%.cpp=$(OBJ_DIR)%.o)
+OBJECTS_DIRS = $(addprefix())
 PROGRAM = ScalarConverter
 
 all: $(PROGRAM)
 
-%.o: %.cpp
-		$(CC) $(FLAGS) -c $< -o $@
+$(OBJ_DIR)%.o: $(SRC_DIR)%.cpp
+	mkdir -p $(OBJ_DIR)
+	$(CC) $(FLAGS) -c $< -o $@
 
 ${PROGRAM}: $(OBJECTS)
-		$(CC) $(FLAGS) $(OBJECTS) -o $(PROGRAM)
+	$(CC) $(FLAGS) $(OBJECTS) -o $(PROGRAM)
 
 clean:
-		rm -f $(OBJECTS)
+	rm -f $(OBJECTS)
 
 fclean: clean
-		rm -f $(PROGRAM)
+	rm -f $(PROGRAM)
 
 re: fclean all
 
 full: re
-		make clean
-		clear
+	make clean
+	clear
 
 .PHONY: all clean fclean re full
