@@ -10,55 +10,6 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-// template<typename D>
-// std::string	getEvery(D literal) {
-// 	if (std::numeric_limits<D>::min() < literal || std::numeric_limits<D>::max() > limits)
-// 	..
-
-// 	int test = int(literal);
-
-// 	std::cout << std::to_string(test);
-
-// 	float test = float(literal);
-
-// 	std::count << test;
-// }
-
-// template<typename Type>
-// class Variable {
-// 	Type	value;
-
-// 	Variable() {
-// 		value = Type();
-// 	}
-// 	Type	Variable(const Type &other) {}
-
-// 	Type	operator+(const Type &other) {
-// 		this->value += other.value;
-// 	}
-// }
-
-// Type test = new Variable<std::string>();
-
-
-//  template<typename D>
-// std::string	getEvery(D literal) {
-// 	if (std::numeric_limits<D>::min() < literal || std::numeric_limits<D>::max() > limits)
-// 	..
-
-// 	int test = int(literal);
-
-// 	std::cout << std::to_string(test);
-
-// 	float test = float(literal);
-
-// 	std::count << test;
-// }
-
-// template<typename Type>
-
-
-
 #include "ScalarConverter.hpp"
 
 ScalarConverter::ScalarConverter()
@@ -79,68 +30,6 @@ ScalarConverter::~ScalarConverter()
 {
 
 }
-
-/*
-
-void resolveChar(std::string literal)
-{
-	std::cout << "resolveChar" << std::endl;
-	if (std::isgraph(static_cast <char> (literal.at(1))) == false)
-		std::cout << "char: Non-displayable" << std::endl;
-	else
-		std::cout << "char: " << literal << std::endl;
-	std::cout << "int: " << static_cast <int> (literal.at(1)) << std::endl;
-	std::cout << "float: " << static_cast <float> (literal.at(1)) << ".0f" << std::endl;
-	std::cout << "double: " << static_cast <double> (literal.at(1)) << ".0" << std::endl;
-}
-
-// for the love of god unit test this TODO
-void resolveInt(std::string literal)
-{
-	bool	limits_flag = false;
-	int		literal_int = atoi(literal.c_str());
-
-	if (literal.size() > 10 && ((atoll(literal.c_str()) > INT_MAX || atoll(literal.c_str()) < INT_MIN)))
-		limits_flag = true;
-	
-	if (literal_int > 127 || literal_int < 0 || limits_flag == true)
-		std::cout << "char: Impossible" << std::endl;
-	else if (std::isgraph(static_cast <char> (literal_int)) == false)
-		std::cout << "char: Non-displayable" << std::endl;
-	else
-		std::cout << "char: " << static_cast <char> (literal_int) << std::endl;
-
-	if (limits_flag == true)
-		std::cout << "int: Impossible" << std::endl;
-	else
-		std::cout << "int: " << literal_int << std::endl;
-
-	if (literal_int < FLT_MIN || (limits_flag == true && literal.at(0) == '-'))
-		std::cout << "float: -inff" << std::endl;
-	else if (literal_int > FLT_MAX || limits_flag == true)
-		std::cout << "float: +inff" << std::endl;
-	else
-		std::cout << "float: " << (static_cast <float> (literal_int)) << ".0f" << std::endl;
-	
-	if (literal_int < DBL_MIN || (limits_flag == true && literal.at(0) == '-'))
-		std::cout << "double: -inf" << std::endl;
-	else if (literal_int > DBL_MAX || limits_flag == true)
-		std::cout << "double: +inf" << std::endl;
-	else
-		std::cout << "double: " << static_cast <double> (literal_int) << ".0" << std::endl; // DBL_MAX
-}
-
-void resolveFloat(std::string literal)
-{
-	std::cout << "resolveFloat" << std::endl; //TODO remove this
-	std::cout << literal << std::endl; //TODO remove this
-}
-
-void resolveDouble(std::string literal)
-{
-	std::cout << "resolveDouble" << std::endl; //TODO remove this
-	std::cout << literal << std::endl; //TODO remove this
-} */
 
 static int checkLiteralType(std::string literal)
 {
@@ -167,7 +56,7 @@ static bool isInSet(char c, const std::string& set)
 }
 
 // This complex function is meant to filter out all invalid formats.
-//  it does not allow for scientific notation.
+//  it does't pass scientific notation or chars denoted in any way other than 'X'.
 static bool isValidLiteral(const std::string& literal)
 {
 	size_t	i = 0;
@@ -209,37 +98,28 @@ static bool isValidLiteral(const std::string& literal)
 	return (true); // +111 -111 111
 }
 
-
 template<typename D>
-
-// resolveLiteral() expects a string literal already filtered by isValidLiteral()
-// It should always print floats and doubles with the decimal point and at minimum
-//  the first decimal place. Additionally floats will always be formatted with a
-//  tailing 'f'.
-// If the cast_literal is within its types limits then it will be printed and
-//  cast to all other types for printing as the subject requires.
-// Floats and doubles above NON_SCIENTIFIC_MAX will no longer print the decimal or
-//  first decimal place.
-// This case may not ever be a problem, but floats below 
-void resolveLiteral(std::string literal, D cast_literal)
+static bool resolveSpecial(std::string literal, D cast_literal)
 {
-	if (((literal.size() > MAX_INT_CHAR_LENGTH && atoll(literal.c_str()) > INT_MAX)
-		&& (std::numeric_limits<D>::max() > cast_literal)) || (literal == "+inff"
+	if (((literal.size() > MAX_INT_CHAR_LENGTH || atoll(literal.c_str()) > INT_MAX) // TODO int isn't guaranteed to be larger than a double
+		|| (std::numeric_limits<D>::max() > cast_literal)) || (literal == "+inff"
 		||	literal == "+inf"))
 	{
 		std::cout << "char: Impossible" << std::endl;
 		std::cout << "int: Impossible" << std::endl;
 		std::cout << "float: +inff" << std::endl;
 		std::cout << "double: +inf" << std::endl;
+		return (true);
 	}
-	else if (((literal.size() > MIN_INT_CHAR_LENGTH && atoll(literal.c_str()) < INT_MIN)
-		&& (std::numeric_limits<D>::min() < cast_literal)) || (literal == "-inff"
+	else if (((literal.size() > MIN_INT_CHAR_LENGTH || atoll(literal.c_str()) < INT_MIN)
+		|| (std::numeric_limits<D>::min() < cast_literal)) || (literal == "-inff"
 		||	literal == "-inf"))
 	{
 		std::cout << "char: Impossible" << std::endl;
 		std::cout << "int: Impossible" << std::endl;
 		std::cout << "float: -inff" << std::endl;
 		std::cout << "double: -inf" << std::endl;
+		return (true);
 	}
 	else if (literal == "nan" || literal == "nanf")
 	{
@@ -247,28 +127,63 @@ void resolveLiteral(std::string literal, D cast_literal)
 		std::cout << "int: Impossible" << std::endl;
 		std::cout << "float: nanf" << std::endl;
 		std::cout << "double: nan" << std::endl;	
+		return (true);
 	}
 	else
+		return (false);
+}
+
+template<typename D>
+static void printCharFromLiteral(D cast_literal)
+{
+	if (cast_literal > ASCII_TABLE_SIZE || cast_literal < 0)
+		std::cout << "char: Impossible" << std::endl;
+	else if (std::isgraph(static_cast <char> (cast_literal)) == false)
+		std::cout << "char: Non-displayable" << std::endl;
+	else
+		std::cout << "char: \'" << static_cast <char> (cast_literal) << "\'" << std::endl;
+}
+
+template<typename D>
+static void printIntFromLiteral(D cast_literal)
+{
+	std::cout << "int: " << static_cast <int> (cast_literal) << std::endl;
+}
+
+template<typename D>
+static void printFloatFromLiteral(D cast_literal)
+{
+	if (floor(static_cast <double> (cast_literal)) == static_cast <double> (cast_literal)
+		&& static_cast <float> (cast_literal) < NON_SCIENTIFIC_NOTATION_MAX
+		&& static_cast <double> (cast_literal) > -NON_SCIENTIFIC_NOTATION_MAX)
+		std::cout << "float: " << static_cast <float> (cast_literal) << ".0f" << std::endl;
+	else
+		std::cout << "float: " << static_cast <float> (cast_literal) << "f" << std::endl;
+}
+
+template<typename D>
+static void printDoubleFromLiteral(D cast_literal)
+{
+	if (floor(static_cast <double> (cast_literal)) == static_cast <double> (cast_literal)
+		&& static_cast <double> (cast_literal) < NON_SCIENTIFIC_NOTATION_MAX
+		&& static_cast <double> (cast_literal) > -NON_SCIENTIFIC_NOTATION_MAX)
+		std::cout << "double: " << static_cast <double> (cast_literal) << ".0" << std::endl;
+	else
+		std::cout << "double: " << static_cast <double> (cast_literal) << std::endl;
+}
+
+// resolveLiteral() expects a string literal already filtered by isValidLiteral()
+// Floats and doubles when within the limits of NON_SCIENTIFIC_NOTATION_MAX will
+//  always be formated with a decimal point and the first decimal place.
+template<typename D>
+static void resolveLiteral(std::string literal, D cast_literal)
+{
+	if (resolveSpecial(literal, cast_literal) == false)
 	{
-		if (cast_literal > ASCII_TABLE_SIZE || cast_literal < 0)
-			std::cout << "char: Impossible" << std::endl;
-		else if (std::isgraph(static_cast <char> (cast_literal)) == false)
-			std::cout << "char: Non-displayable" << std::endl;
-		else
-			std::cout << "char: \'" << static_cast <char> (cast_literal) << "\'" << std::endl;
-		std::cout << "int: " << static_cast <int> (cast_literal) << std::endl;
-		if (floor(static_cast <double> (cast_literal)) == static_cast <double> (cast_literal)
-			&& static_cast <float> (cast_literal) < NON_SCIENTIFIC_NOTATION_MAX
-			&& static_cast <double> (cast_literal) > -NON_SCIENTIFIC_NOTATION_MAX)
-			std::cout << "float: " << static_cast <float> (cast_literal) << ".0f" << std::endl;
-		else
-			std::cout << "float: " << static_cast <float> (cast_literal) << "f" << std::endl;
-		if (floor(static_cast <double> (cast_literal)) == static_cast <double> (cast_literal)
-			&& static_cast <double> (cast_literal) < NON_SCIENTIFIC_NOTATION_MAX
-			&& static_cast <double> (cast_literal) > -NON_SCIENTIFIC_NOTATION_MAX)
-			std::cout << "double: " << static_cast <double> (cast_literal) << ".0" << std::endl;
-		else
-			std::cout << "double: " << static_cast <double> (cast_literal) << std::endl;
+		printCharFromLiteral(cast_literal);
+		printIntFromLiteral(cast_literal);
+		printFloatFromLiteral(cast_literal);
+		printDoubleFromLiteral(cast_literal);
 	}
 }
 
