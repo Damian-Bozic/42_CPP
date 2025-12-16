@@ -166,6 +166,8 @@ static bool isInSet(char c, const std::string& set)
 	return (set.find(c) != std::string::npos);
 }
 
+// This complex function is meant to filter out all invalid formats.
+//  it does not allow for scientific notation.
 static bool isValidLiteral(const std::string& literal)
 {
 	size_t	i = 0;
@@ -184,8 +186,8 @@ static bool isValidLiteral(const std::string& literal)
 	if (literal.at(i) == '.')
 		return (false); //+.0 +.0f (no need for a size() check here since we've checked for "+" and "-")
 	while (i < literal.size())
-	{// This must be done in "C style" programming since I'm not allowed <algorithm> in this module 🥰
-		if (!isdigit(literal.at(i)))	// not that I'm complaining, I love me some C style <3
+	{// This must be done in "C style" programming 🥰 algorithms are prohibited in this module.
+		if (!isdigit(literal.at(i))) // I'm not complaining, I love C style.
 		{
 			if (literal.at(i) == '.')
 			{
@@ -207,19 +209,32 @@ static bool isValidLiteral(const std::string& literal)
 	return (true); // +111 -111 111
 }
 
+
 template<typename D>
+
+// resolveLiteral() expects a string literal already filtered by isValidLiteral()
+// It should always print floats and doubles with the decimal point and at minimum
+//  the first decimal place. Additionally floats will always be formatted with a
+//  tailing 'f'.
+// If the cast_literal is within its types limits then it will be printed and
+//  cast to all other types for printing as the subject requires.
+// Floats and doubles above NON_SCIENTIFIC_MAX will no longer print the decimal or
+//  first decimal place.
+// This case may not ever be a problem, but floats below 
 void resolveLiteral(std::string literal, D cast_literal)
 {
-	if ((literal.size() > MAX_INT_CHAR_LENGTH && atoll(literal.c_str()) > INT_MAX)
-		&& (std::numeric_limits<D>::max() > cast_literal))
+	if (((literal.size() > MAX_INT_CHAR_LENGTH && atoll(literal.c_str()) > INT_MAX)
+		&& (std::numeric_limits<D>::max() > cast_literal)) || (literal == "+inff"
+		||	literal == "+inf"))
 	{
 		std::cout << "char: Impossible" << std::endl;
 		std::cout << "int: Impossible" << std::endl;
 		std::cout << "float: +inff" << std::endl;
 		std::cout << "double: +inf" << std::endl;
 	}
-	else if ((literal.size() > MIN_INT_CHAR_LENGTH && atoll(literal.c_str()) < INT_MIN)
-		&& (std::numeric_limits<D>::min() < cast_literal))
+	else if (((literal.size() > MIN_INT_CHAR_LENGTH && atoll(literal.c_str()) < INT_MIN)
+		&& (std::numeric_limits<D>::min() < cast_literal)) || (literal == "-inff"
+		||	literal == "-inf"))
 	{
 		std::cout << "char: Impossible" << std::endl;
 		std::cout << "int: Impossible" << std::endl;
@@ -242,11 +257,15 @@ void resolveLiteral(std::string literal, D cast_literal)
 		else
 			std::cout << "char: \'" << static_cast <char> (cast_literal) << "\'" << std::endl;
 		std::cout << "int: " << static_cast <int> (cast_literal) << std::endl;
-		if (floor(static_cast <double> (cast_literal)) == static_cast <double> (cast_literal))
+		if (floor(static_cast <double> (cast_literal)) == static_cast <double> (cast_literal)
+			&& static_cast <float> (cast_literal) < NON_SCIENTIFIC_NOTATION_MAX
+			&& static_cast <double> (cast_literal) > -NON_SCIENTIFIC_NOTATION_MAX)
 			std::cout << "float: " << static_cast <float> (cast_literal) << ".0f" << std::endl;
 		else
 			std::cout << "float: " << static_cast <float> (cast_literal) << "f" << std::endl;
-		if (floor(static_cast <double> (cast_literal)) == static_cast <double> (cast_literal))
+		if (floor(static_cast <double> (cast_literal)) == static_cast <double> (cast_literal)
+			&& static_cast <double> (cast_literal) < NON_SCIENTIFIC_NOTATION_MAX
+			&& static_cast <double> (cast_literal) > -NON_SCIENTIFIC_NOTATION_MAX)
 			std::cout << "double: " << static_cast <double> (cast_literal) << ".0" << std::endl;
 		else
 			std::cout << "double: " << static_cast <double> (cast_literal) << std::endl;
@@ -258,7 +277,7 @@ void ScalarConverter::convert(std::string literal)
 	if (!isValidLiteral(literal))
 		literal = "nan";
 	int	type = checkLiteralType(literal);
-	std::cout << "type number: " << type << std::endl;
+	// std::cout << "type number: " << type << std::endl; // Debug for checkLiteralType()
 	try
 	{
 		switch (type)

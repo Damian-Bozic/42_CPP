@@ -27,7 +27,9 @@
 # define	MIN_INT_CHAR_LENGTH 11
 # define	CHAR_LITERAL_CHAR_LENGTH 3
 # define	ASCII_TABLE_SIZE 127
-
+# define	NON_SCIENTIFIC_NOTATION_MAX 999999
+			// The largest possible value floats will display without scientific notation (e)
+// # define	NON_SCIENTIFIC_NOTATION_MIN 0.0001 // Unused, but good to keep on hand
 class ScalarConverter
 {
 private:
