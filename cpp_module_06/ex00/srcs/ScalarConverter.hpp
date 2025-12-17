@@ -19,16 +19,22 @@
 # include <limits>
 # include <cmath> 
 # include <sstream>
-# define	CHAR 1
-# define	INT 2
-# define	FLOAT 3
-# define	DOUBLE 4
 # define	MAX_INT_CHAR_LENGTH 10
 # define	MIN_INT_CHAR_LENGTH 11
 # define	CHAR_LITERAL_CHAR_LENGTH 3
+# define	POSITIVE_OVERFLOW_CHAR_LENGTH 18
+# define	NEGATIVE_OVERFLOW_CHAR_LENGTH 19
 # define	ASCII_TABLE_SIZE 127
 # define	NON_SCIENTIFIC_NOTATION_MAX 999999
-			// The largest possible value floats will display without scientific notation (e)
+
+enum types
+{
+	CHAR,
+	INT,
+	FLOAT,
+	DOUBLE
+};
+// The largest possible value floats will display without scientific notation (e)
 // # define	NON_SCIENTIFIC_NOTATION_MIN 0.0001 // Unused, but good to keep on hand
 class ScalarConverter
 {
@@ -40,10 +46,11 @@ public:
 	ScalarConverter(const ScalarConverter &other);
 	virtual ~ScalarConverter() = 0;
 
-	// ScalarConverter	operator=(const ScalarConverter &other);
+	ScalarConverter &operator = (const ScalarConverter &other);
 
 	static void convert(std::string literal); // print output
 };
+
 
 // static methods are methods that don't require an
 //  instantiated object to be called.
