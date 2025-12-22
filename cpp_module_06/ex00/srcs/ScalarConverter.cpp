@@ -117,7 +117,7 @@ static bool isValidLiteral(const std::string &literal)
 /* truncateLiteral() truncates (if present) '+' from the start of the string literal
 	as well as all leading zeros present in the integral. */
 static std::string truncateLiteral(const std::string &literal)
-{
+{	
 	size_t	start = 0;
 	size_t	first_non_zero;
 	bool	plus_sign_flag = false;
