@@ -1,0 +1,6 @@
+*.o
+objs/
+
+.vscode/
+
+Whatever
