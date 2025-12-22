@@ -4,3 +4,5 @@ objs/
 .vscode/
 
 ScalarConverter
+Serializer
+DynamicCastTest
