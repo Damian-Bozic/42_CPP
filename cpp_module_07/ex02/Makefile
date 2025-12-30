@@ -5,8 +5,8 @@
 #                                                     +:+ +:+         +:+      #
 #    By: dbozic <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2025/12/22 18:56:52 by dbozic            #+#    #+#              #
-#    Updated: 2025/12/22 18:56:52 by dbozic           ###   ########.fr        #
+#    Created: 2025/12/30 14:00:47 by dbozic            #+#    #+#              #
+#    Updated: 2025/12/30 14:00:48 by dbozic           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,7 @@ OBJ_DIR = objs/
 SOURCES = main.cpp
 OBJECTS = $(SOURCES:%.cpp=$(OBJ_DIR)%.o)
 OBJECTS_DIRS = $(addprefix())
-PROGRAM = Whatever
+PROGRAM = Array
 
 all: $(PROGRAM)
 
