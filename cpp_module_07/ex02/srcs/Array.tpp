@@ -27,24 +27,28 @@ Array<T>::Array(size_t size) : _size(size)
 	else
 	{
 		_array = new T[size];
-		if (!_array)
-			throw (BadNew());
 		for (size_t i = 0; i < size; i++)
 			_array[i] = T();
 	}
 }
 /* copy constructor */
 template <typename T>
-Array<T>::Array(const Array& other)
+Array<T>::Array(const Array& other) : _size(0), _array(NULL)
 {
-	static_cast<void>(other);
+	*this = other;
 }
 
+/* If the new here will throw, the _array will have already been
+    deleted. That can be fixed with a temp _array but this code
+	doesn't need to be all that robust */
 /* copy assignment constructor */
 template <typename T>
 Array<T> &Array<T>::operator=(const Array<T>& other)
 {
-	delete[](this->_array);
+	if (this == &other)
+		return (*this);
+	if (_array)
+		delete[](this->_array);
 	_array = new T[other._size];
 	_size = other._size;
 	for (size_t i = 0; i < _size; i++)
@@ -72,11 +76,6 @@ template <typename T>
 size_t Array<T>::size(void) const
 {
 	return (_size);
-}
-
-const char *BadNew::what() const throw()
-{
-	return("Array failed to allocate on the heap using new");
 }
 
 const char *OutOfArrayBounds::what() const throw()

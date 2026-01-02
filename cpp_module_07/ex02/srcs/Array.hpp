@@ -32,12 +32,6 @@ class Array
 		size_t		size(void) const;
 };
 
-class BadNew : public std::exception
-{
-	public:
-		const char *what() const throw();
-};
-
 class OutOfArrayBounds : public std::exception
 {
 	public:

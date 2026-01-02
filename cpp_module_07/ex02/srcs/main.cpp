@@ -33,9 +33,13 @@ int main(void)
 		(*float_array_of_size_10)[6] = 123.321f;
 		std::cout << "Float Array[6] = " << (*float_array_of_size_10)[6] << std::endl;
 
+		Array<float>* float_array_copy_constructor = new Array<float>(*float_array_of_size_10);
+		std::cout << "Float Copy[6] = " << (*float_array_copy_constructor)[6] << std::endl;
+
 		delete int_array_of_size_250;
 		delete int_array_of_size_0;
 		delete float_array_of_size_10;
+		delete float_array_copy_constructor;
 		return (0);
 	}
 	catch(const std::exception& e)
