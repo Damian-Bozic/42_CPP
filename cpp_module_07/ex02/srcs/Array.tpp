@@ -44,7 +44,11 @@ Array<T>::Array(const Array& other)
 template <typename T>
 Array<T> &Array<T>::operator=(const Array<T>& other)
 {
-	static_cast<void>(other);
+	delete[](this->_array);
+	_array = new T[other._size];
+	_size = other._size;
+	for (size_t i = 0; i < _size; i++)
+		this->_array[i] = other._array[i];
 	return (*this);
 }
 
