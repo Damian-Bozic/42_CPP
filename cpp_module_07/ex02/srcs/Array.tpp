@@ -33,7 +33,7 @@ Array<T>::Array(size_t size) : _size(size)
 }
 /* copy constructor */
 template <typename T>
-Array<T>::Array(const Array& other) : _size(0), _array(NULL)
+Array<T>::Array(const Array& other)
 {
 	*this = other;
 }
