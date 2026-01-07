@@ -12,63 +12,18 @@
 
 #include "easyfind.hpp"
 
-/* default constructor */
-template <typename T, int i>
-Easyfind<T>::Easyfind() : _size(0), _Easyfind(NULL)
+template <typename T>
+void easyfind(T container, int to_find)
 {
-}
+	typename T::iterator iterator_to_contained_value;
 
-/* argumented constructor */
-template <typename T, int i>
-Easyfind<T>::Easyfind(void)
-{
-	if (size == 0)
-		_Easyfind = NULL;
-	else
-	{
-		_Easyfind = new T[size];
-		if (!_Easyfind)
-			throw (BadNew());
-		for (size_t i = 0; i < size; i++)
-			_Easyfind[i] = T();
-	}
+	iterator_to_contained_value = find(container.begin(), container.end(), to_find);
+	if (iterator_to_contained_value == container.end())
+		throw (easyfindError());
+	std::cout << "easyfind has found something!!: "
+		<< *iterator_to_contained_value << std::endl;
 }
-/* copy constructor */
-template <typename T, int i>
-Easyfind<T>::Easyfind(const Easyfind& other)
+const char *easyfindError::what() const throw()
 {
-	static_cast<void>(other);
-}
-
-/* copy assignment constructor */
-template <typename T, int i>
-Easyfind<T> &Easyfind<T>::operator=(const Easyfind<T>& other)
-{
-	delete[](this->_Easyfind);
-	_Easyfind = new T[other._size];
-	_size = other._size;
-	for (size_t i = 0; i < _size; i++)
-		this->_Easyfind[i] = other._Easyfind[i];
-	return (*this);
-}
-
-template <typename T, int i>
-T& Easyfind<T>::operator[](size_t index)
-{
-	if (index >= _size)
-		throw (OutOfEasyfindBounds());
-	return (*(_Easyfind + index));
-}
-
-/* deconstructor */
-template <typename T, int i>
-Easyfind<T>::~Easyfind()
-{
-	if (_Easyfind)
-		delete[] (_Easyfind);
-}
-
-const char *ThrowError::what() const throw()
-{
-	return("Easyfind threw");
+	return("easyfind threw");
 }

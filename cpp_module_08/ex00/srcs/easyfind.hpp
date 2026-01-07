@@ -12,29 +12,14 @@
 
 #ifndef EASYFIND_HPP
 # define EASYFIND_HPP
-# include <cstdio>
+# include <algorithm>
 # include <exception>
+# include <iostream>
 
-template <typename T, int i>
-class Easyfind
-{
-	private:
-		size_t	_size;
-		T*		_Easyfind;
-	public:
-		Easyfind();
-		Easyfind(void);
-		Easyfind(const Easyfind &other);
-		~Easyfind();
-};
+template <typename T>
+void easyfind(T container, int to_find);
 
-class BadNew : public std::exception
-{
-	public:
-		const char *what() const throw();
-};
-
-class OutOfEasyfindBounds : public std::exception
+class easyfindError : public std::exception
 {
 	public:
 		const char *what() const throw();

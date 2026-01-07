@@ -17,7 +17,7 @@ OBJ_DIR = objs/
 SOURCES = main.cpp
 OBJECTS = $(SOURCES:%.cpp=$(OBJ_DIR)%.o)
 OBJECTS_DIRS = $(addprefix())
-PROGRAM = Array
+PROGRAM = easyfind
 
 all: $(PROGRAM)
 
