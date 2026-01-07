@@ -17,7 +17,7 @@ OBJ_DIR = objs/
 SOURCES = main.cpp Span.cpp
 OBJECTS = $(SOURCES:%.cpp=$(OBJ_DIR)%.o)
 OBJECTS_DIRS = $(addprefix())
-PROGRAM = easyfind
+PROGRAM = Span
 
 all: $(PROGRAM)
 
