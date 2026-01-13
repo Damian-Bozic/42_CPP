@@ -29,14 +29,26 @@ class Span
 
 		Span &operator = (const Span &other);
 		void addNumber(unsigned int number_to_add);
-		unsigned int shortestSpan(void);
-		unsigned int longestSpan(void);
+		void addIteratorRange(std::vector<unsigned int>::iterator start,
+			std::vector<unsigned int>::iterator end);
+		unsigned int shortestSpan(void) const;
+		unsigned int longestSpan(void) const;
+		unsigned int getNumber(unsigned int pos) const;
+		unsigned int getSize(void) const;
 
 	class OutOfRoom : public std::exception
 	{
 		public:
 			const char *what() const throw();
 	};
+
+	class NotEnoughElements : public std::exception
+	{
+		public:
+			const char *what() const throw();
+	};
 };
+
+std::ostream &operator<<(std::ostream &o, const Span &span);
 
 #endif
