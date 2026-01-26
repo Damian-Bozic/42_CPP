@@ -4,5 +4,5 @@ objs/
 .vscode/
 
 easyfind
-Span
-MutantStack
+span
+mutantStack
