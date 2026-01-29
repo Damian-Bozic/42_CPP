@@ -1,0 +1,8 @@
+*.o
+objs/
+
+.vscode/
+
+easyfind
+span
+mutantStack
