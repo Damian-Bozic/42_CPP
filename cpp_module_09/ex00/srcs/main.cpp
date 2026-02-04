@@ -32,7 +32,8 @@ int main(void)
 {
 	try
 	{
-		BitcoinExchange test("wallet records");
+		BitcoinExchange test;
+		test.PrintTrueWalletValue();
 	}
 	catch(const std::exception& e)
 	{
