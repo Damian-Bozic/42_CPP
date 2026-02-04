@@ -12,6 +12,52 @@
 
 #include "BitcoinExchange.hpp"
 
+static bool
+IsLeapYear(YearMonthDay date)
+{
+	if (date.year % 4 == 0)
+		return (true);
+	return (false);
+}
+
+static short
+GetMonthsInDays(YearMonthDay date)
+{
+	short months[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+	short days = 0;
+	if (IsLeapYear(date))
+		months[1] = 29;
+	for (short i = 0; i < date.month; i++)
+		days += months[i];
+	return (days);
+}
+
+static int
+GetYearsInDays(YearMonthDay date)
+{
+	int	days = 0;
+	short yearOffset = date.year % 4;
+	days += (date.year / 4) * N_OF_DAYS_IN_FOUR_YEARS;
+	days += (yearOffset * N_OF_DAYS_IN_REGULAR_YEAR);
+	return (days);
+}
+
+double
+YearMonthDay::GetTotalTimeInDays() const
+{
+	double dateInDays = this->day;
+	std::cout << "days : " << this->day << std::endl;
+	dateInDays += GetMonthsInDays(*this);
+	dateInDays += GetYearsInDays(*this);
+	return (dateInDays);
+}
+
+bool
+YearMonthDay::operator<(const YearMonthDay& other) const
+{
+	return (this->GetTotalTimeInDays() < other.GetTotalTimeInDays());
+}
+
 /* default constructor */
 BitcoinExchange::BitcoinExchange() :
 	m_rateData(ReadRateData(EXCHANGE_DATA_CSV)),
@@ -57,9 +103,9 @@ static YearMonthDay
 parseDate(std::string line)
 {
 	YearMonthDay date;
-	date.year = atoi(line.substr(YEAR_START, YEAR_END).c_str());
-	date.month = atoi(line.substr(MONTH_START, MONTH_END).c_str());
-	date.day = atoi(line.substr(DAY_START, DAY_END).c_str());
+	date.year = atoi(line.substr(YEAR_START, YEAR_END + 1).c_str());
+	date.month = atoi(line.substr(MONTH_START , MONTH_END + 1).c_str());
+	date.day = atoi(line.substr(DAY_START , DAY_END + 1).c_str());
 	return (date);
 }
 
@@ -126,10 +172,12 @@ BitcoinExchange::ReadWalletData(std::string fileNameAndDir)
 		if (checkWalletFormat(line))
 			continue ;
 		date = parseDate(line);
+		if (m_walletRecords.find(date) != m_walletRecords.end())
+			throw(DuplicateWalletValue());
 		value = atof(line.substr(RATE_VALUE_START,line.size() - RATE_VALUE_START).c_str());
 		if (value < 0 || value > 1000)
 			throw(BadWalletValue());
-		walletData.insert(financeDataPair(&date, value));
+		walletData.insert(financeDataPair(date, value));
 	}
 	infile.close();
 	return (walletData);
@@ -153,8 +201,10 @@ BitcoinExchange::ReadRateData(std::string fileNameAndDir)
 		if (checkRateFormat(line))
 			continue ;
 		date = parseDate(line);
+		if (m_walletRecords.find(date) != m_walletRecords.end())
+			throw(DuplicateCSVValue());
 		value = atof(line.substr(RATE_VALUE_START,line.size() - RATE_VALUE_START).c_str());
-		rateData.insert(financeDataPair(&date, value));
+		rateData.insert(financeDataPair(date, value));
 	}
 	infile.close();
 	return (rateData);
@@ -164,7 +214,7 @@ void BitcoinExchange::PrintTrueWalletValue(void)
 {
 	financeDataMap::iterator	itWallet;
 	financeDataMap::iterator	itRate;
-	YearMonthDay				*date;
+	YearMonthDay				date;
 
 	itWallet = m_walletRecords.begin();
 	for (long unsigned int i = 0; i < m_walletRecords.size(); i++)
@@ -178,53 +228,13 @@ void BitcoinExchange::PrintTrueWalletValue(void)
 		}
 		else
 		{
-			std::cout << itWallet->first->year << "-"
-				<< itWallet->first->month << "-"
-				<< itWallet->first->day << " => "
+			std::cout << itWallet->first.year << "-"
+				<< itWallet->first.month << "-"
+				<< itWallet->first.day << " => "
 				<< itWallet->second * itRate->second << std::endl;
 		}
 	}
 	
-}
-
-
-static bool
-IsLeapYear(YearMonthDay date)
-{
-	if (date.year % 4 == 0)
-		return (true);
-	return (false);
-}
-
-static short
-GetMonthsInDays(YearMonthDay date)
-{
-	short months[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-	short days = 0;
-	if (IsLeapYear(date))
-		months[1] = 29;
-	for (short i = 0; i < date.month; i++)
-		days += months[i];
-	return (days);
-}
-
-static int
-GetYearsInDays(YearMonthDay date)
-{
-	int	days = 0;
-	short yearOffset = date.year % 4;
-	days += (date.year / 4) * N_OF_DAYS_IN_FOUR_YEARS;
-	days += (yearOffset * N_OF_DAYS_IN_REGULAR_YEAR);
-	return (days);
-}
-
-double
-BitcoinExchange::GetTotalTimeInDays(YearMonthDay date)
-{
-	double dateInDays = date.day;
-	dateInDays += GetMonthsInDays(date);
-	dateInDays += GetYearsInDays(date);
-	return (dateInDays);
 }
 
 const char*
@@ -246,6 +256,12 @@ BitcoinExchange::BadCSVFileFormat::what() const throw()
 }
 
 const char*
+BitcoinExchange::DuplicateCSVValue::what() const throw()
+{
+	return ("CSV file has duplicate dates");
+}
+
+const char*
 BitcoinExchange::BadWalletFileFormat::what() const throw()
 {
 	return ("Poorly formatted input file");
@@ -256,3 +272,10 @@ BitcoinExchange::BadWalletValue::what() const throw()
 {
 	return ("Invalid Wallet Balance");
 }
+
+const char*
+BitcoinExchange::DuplicateWalletValue::what() const throw()
+{
+	return ("Input file has duplicate dates");
+}
+
