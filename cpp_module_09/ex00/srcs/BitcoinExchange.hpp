@@ -40,6 +40,7 @@ struct YearMonthDay
 
 	double GetTotalTimeInDays() const;
 	bool operator<(const YearMonthDay& other) const;
+	bool operator==(const YearMonthDay& other) const;
 }; // No way structs can have member functions 💀💀💀💀💀
 
 typedef std::map<YearMonthDay, float> financeDataMap;
@@ -53,8 +54,8 @@ class BitcoinExchange
 		~BitcoinExchange();
 
 		BitcoinExchange& operator=(const BitcoinExchange& other);
-		financeDataMap& ReadRateData(std::string fileNameAndDir);
-		financeDataMap& ReadWalletData(std::string fileNameAndDir);
+		financeDataMap* ReadRateData(std::string fileNameAndDir);
+		financeDataMap* ReadWalletData(std::string fileNameAndDir);
 		void PrintTrueWalletValue(void);
 
 		class NoSuchCSVFile : public std::exception
@@ -100,8 +101,8 @@ class BitcoinExchange
 		};
 
 	private:
-		financeDataMap &m_rateData;
-		financeDataMap &m_walletRecords;
+		financeDataMap *m_walletRecords;
+		financeDataMap *m_rateData;
 };
 
 #endif
