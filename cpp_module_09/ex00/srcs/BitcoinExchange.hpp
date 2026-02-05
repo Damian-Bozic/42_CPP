@@ -100,6 +100,12 @@ class BitcoinExchange
 				const char* what() const throw();
 		};
 
+		class NoPreviousEntry : public std::exception
+		{
+			public:
+				const char* what() const throw();
+		};
+
 	private:
 		financeDataMap *m_walletRecords;
 		financeDataMap *m_rateData;
