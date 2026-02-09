@@ -36,9 +36,15 @@ GetMonthsInDays(YearMonthDay date);
 
 int main(void)
 {
-	BitcoinExchange test;
-	test.PrintTrueWalletValue();
-	return (0);
+	try {
+		BitcoinExchange test;
+		test.PrintTrueWalletValue();
+	}
+	catch (const std::exception &e)
+	{
+		std::cout << "Error: " << e.what() << std::endl;
+		return (1);
+	}
 	// YearMonthDay a = {2009, 1, 29};
 	// YearMonthDay b = {2009, 2, 1};
 	// std::cout << a.GetTotalTimeInDays() << std::endl;
@@ -52,4 +58,5 @@ int main(void)
 
 	// std::cout << GetYearsInDays(a) << std::endl;
 	// std::cout << GetYearsInDays(b) << std::endl; 
+	return (0);
 }
