@@ -21,4 +21,5 @@ int main(int argc, char **argv)
 	sorter.DividePairs();
 	std::cout << sorter << std::endl;
 	sorter.initAndInsert();
+	std::cout << sorter << std::endl;
 }

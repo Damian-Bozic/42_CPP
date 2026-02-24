@@ -108,29 +108,60 @@ PmergeMe::initMain()
 		seq_pos++;
 	}
 	m_main.push_back(memberForInsert);
-	std::cout << "m_main\n" << m_main << std::endl;
+}
+
+void
+PmergeMe::reInitSeq()
+{
+	m_seq.clear();
+	for (std::list<member>::iterator it = m_main.begin(); it != m_main.end(); it++)
+		for (size_t i = 0; i < it->sequence.size(); i++)
+			m_seq.push_back(it->sequence.at(i));
+	m_main.clear();
+	m_pend.clear();
 }
 
 void
 PmergeMe::insertPairs()
 {
 	std::list<member> temp = m_main;
-	std::list<PmergeMe::member>::iterator temp_it = temp.begin();
+	std::list<member>::iterator tempIt = temp.begin();
 
 	m_main.clear();
 	m_pend.clear();
-	m_main.push_back(*temp_it);
-	while (temp_it != temp.end())
+	m_main.push_back(*tempIt);
+	while (tempIt != temp.end())
 	{
-		if (temp_it->pairSide == A)
-			m_main.push_back(*temp_it);
-		else if (temp_it->pairSide == A && temp_it->pairNum != 1)
-			m_pend.push_back(*temp_it);
-		temp_it++;
+		if (tempIt->pairSide == A)
+			m_main.push_back(*tempIt);
+		else if (tempIt->pairSide != A && tempIt->pairNum != 1)
+			m_pend.push_back(*tempIt);
+		tempIt++;
 	}
-	std::cout << "m_main\n" << m_main << std::endl;
-	std::cout << "m_pend\n" << m_pend << std::endl;
-	
+	// std::cout << "m_main\n" << m_main << std::endl;
+	// std::cout << "m_pend\n" << m_pend << std::endl;
+	// return pend leftover to main
+	m_main.push_back(m_pend.back());
+	m_pend.pop_back();
+	while (!m_pend.empty())
+	{ // Wobbly logic assumes that the ford johnson logic will always be true without actually counting the ford johnson numbers.
+		while (!m_pend.empty()) {
+			for (std::list<member>::iterator mainIt = m_main.begin(); true; mainIt++) {
+				if (*mainIt > m_pend.back()) {
+					m_main.insert(mainIt, m_pend.back());
+					m_pend.pop_back();
+					break;
+				}
+			}
+		}
+		break;
+	}
+	reInitSeq();
+	// std::cout << *this << std::endl;
+	if (m_pairSize == 1)
+		return ;
+	initMain();
+	insertPairs();
 }
 
 std::vector<int>
@@ -138,6 +169,13 @@ PmergeMe::GetSequence() const
 {
 	return (m_seq);
 }
+
+bool
+PmergeMe::member::operator>(const member &other)
+{
+	return (this->sequence.back() > other.sequence.back());
+}
+
 
 std::ostream&
 operator<<(std::ostream& os, const std::vector<int> vect)

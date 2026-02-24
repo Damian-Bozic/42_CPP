@@ -20,23 +20,10 @@
  #include <cstdlib>
  #define TESTSEQ {11, 2, 17, 0, 16, 8, 6, 15, 10, 3, 21, 1, 18, 9, 14, 19, 12, 5, 4, 20, 13, 7}
  #define TESTSTR "11 2 17 0 16 8 6 15 10 3 21 1 18 9 14 19 12 5 4 20 13 7"
+ #define JACOBSTHAL {3, 5, 11, 21, 43, 85, 171, 341, 683, 1365, 2731, 5461, 10923, 21845, 43691, 87381, 174763, 349525, 699051, 1398101, 2796203, 5592405, 11184811, 22369621, 44739243, 89478485, 178956971, 357913941, 715827883, 1431655765}
 class PmergeMe
 {
-
-
 	public:
-		// PmergeMe();
-		PmergeMe(std::string);
-		// PmergeMe(PmergeMe &other);
-		~PmergeMe();
-		// PmergeMe& operator=(const PmergeMe& other);
-
-		void DividePairs();
-		void initAndInsert();
-		void initMain();
-		void insertPairs();
-		std::vector<int> GetSequence() const;
-
 		enum sideIdentity {
 			NON_PARTICIPATING,
 			A = 'a',
@@ -47,7 +34,21 @@ class PmergeMe
 			std::vector<int>	sequence;
 			enum sideIdentity	pairSide;
 			size_t				pairNum;
+			bool operator>(const member &other);
 		};
+
+		// PmergeMe();
+		PmergeMe(std::string);
+		// PmergeMe(PmergeMe &other);
+		~PmergeMe();
+		// PmergeMe& operator=(const PmergeMe& other);
+
+		void DividePairs();
+		void initAndInsert();
+		void initMain();
+		void insertPairs();
+		void reInitSeq();
+		std::vector<int> GetSequence() const;
 
 	private:
 		std::vector<int> m_seq;
