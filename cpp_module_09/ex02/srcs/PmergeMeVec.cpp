@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "PmergeMe.hpp"
+#include "PmergeMeVec.hpp"
 
 // PmergeMe::PmergeMe()
 // {
@@ -28,6 +28,7 @@ PmergeMe::PmergeMe(std::string sequence) : m_pairSize(2)
 
 // PmergeMe::PmergeMe(PmergeMe &other)
 // {
+
 // }
 
 PmergeMe::~PmergeMe()
@@ -42,13 +43,13 @@ PmergeMe::~PmergeMe()
 // }
 
 void
-PmergeMe::DequeDividePairs()
+PmergeMe::DividePairs()
 {
 	if (m_seq.size() < m_pairSize) {
 		m_pairSize /= 2;
 		return ;
 	}
-	std::deque<int> temp = m_seq;
+	std::vector<int> temp = m_seq;
 	size_t leftCheckElement;
 	size_t rightCheckElement;
 	for (size_t i = 0; i < temp.size(); i += m_pairSize) {
@@ -67,53 +68,53 @@ PmergeMe::DequeDividePairs()
 	// std::cout << "sequence before = " << temp << std::endl;
 	// std::cout << "sequence after  = " << m_seq << std::endl;
 	m_pairSize *= 2;
-	this->DequeDividePairs();
+	this->DividePairs();
 }
 
 void
-PmergeMe::DequeinitAndInsert()
+PmergeMe::initAndInsert()
 {
-	DequeinitMain();
-	DequeinsertPairs();
+	initMain();
+	insertPairs();
 }
 
 void
-PmergeMe::DequeinitMain()
+PmergeMe::initMain()
 {
-	dequeMember	dequeMemberForInsert;
+	member	memberForInsert;
 	size_t	pairNum = 1;
 	size_t	seq_pos = 0;
 
 	m_pairSize /= 2;
 	for (size_t i = 0; seq_pos + m_pairSize <= m_seq.size(); i++) {
-		dequeMemberForInsert.pairNum = pairNum;
+		memberForInsert.pairNum = pairNum;
 		if (i % 2) {
-			dequeMemberForInsert.pairSide = A;
+			memberForInsert.pairSide = A;
 			pairNum++;
 		}
 		else
-			dequeMemberForInsert.pairSide = B;
+			memberForInsert.pairSide = B;
 		for (size_t j = 0; j < m_pairSize; j++) {
-			dequeMemberForInsert.sequence.push_back(m_seq.at(seq_pos + j));
+			memberForInsert.sequence.push_back(m_seq.at(seq_pos + j));
 		}
-		m_main.push_back(dequeMemberForInsert);
-		dequeMemberForInsert.sequence.clear();
+		m_main.push_back(memberForInsert);
+		memberForInsert.sequence.clear();
 		seq_pos += m_pairSize;
 	}
-	dequeMemberForInsert.pairNum = 0;
-	dequeMemberForInsert.pairSide = NON_PARTICIPATING;
+	memberForInsert.pairNum = 0;
+	memberForInsert.pairSide = NON_PARTICIPATING;
 	while (seq_pos < m_seq.size()) {
-		dequeMemberForInsert.sequence.push_back(m_seq.at(seq_pos));
+		memberForInsert.sequence.push_back(m_seq.at(seq_pos));
 		seq_pos++;
 	}
-	m_main.push_back(dequeMemberForInsert);
+	m_main.push_back(memberForInsert);
 }
 
 void
-PmergeMe::DequereInitSeq()
+PmergeMe::reInitSeq()
 {
 	m_seq.clear();
-	for (std::deque<dequeMember>::iterator it = m_main.begin(); it != m_main.end(); it++)
+	for (std::vector<member>::iterator it = m_main.begin(); it != m_main.end(); it++)
 		for (size_t i = 0; i < it->sequence.size(); i++)
 			m_seq.push_back(it->sequence.at(i));
 	m_main.clear();
@@ -121,10 +122,10 @@ PmergeMe::DequereInitSeq()
 }
 
 void
-PmergeMe::DequeinsertPairs()
+PmergeMe::insertPairs()
 {
-	std::deque<dequeMember> temp = m_main;
-	std::deque<dequeMember>::iterator tempIt = temp.begin();
+	std::vector<member> temp = m_main;
+	std::vector<member>::iterator tempIt = temp.begin();
 
 	m_main.clear();
 	m_pend.clear();
@@ -145,7 +146,7 @@ PmergeMe::DequeinsertPairs()
 	while (!m_pend.empty())
 	{ // Wobbly logic assumes that the ford johnson logic will always be true without actually counting the ford johnson numbers.
 		while (!m_pend.empty()) {
-			for (std::deque<dequeMember>::iterator mainIt = m_main.begin(); true; mainIt++) {
+			for (std::vector<member>::iterator mainIt = m_main.begin(); true; mainIt++) {
 				if (*mainIt > m_pend.back()) {
 					m_main.insert(mainIt, m_pend.back());
 					m_pend.pop_back();
@@ -155,25 +156,26 @@ PmergeMe::DequeinsertPairs()
 		}
 		break;
 	}
-	DequereInitSeq();
+	reInitSeq();
 	// std::cout << *this << std::endl;
 	if (m_pairSize == 1)
 		return ;
-	DequeinitMain();
-	DequeinsertPairs();
+	initMain();
+	insertPairs();
 }
 
-std::deque<int>
-PmergeMe::DequeGetSequence() const
+std::vector<int>
+PmergeMe::GetSequence() const
 {
 	return (m_seq);
 }
 
 bool
-PmergeMe::dequeMember::operator>(const dequeMember &other)
+PmergeMe::member::operator>(const member &other)
 {
 	return (this->sequence.back() > other.sequence.back());
 }
+
 
 std::ostream&
 operator<<(std::ostream& os, const std::vector<int> vect)
@@ -188,24 +190,12 @@ operator<<(std::ostream& os, const std::vector<int> vect)
 }
 
 std::ostream&
-operator<<(std::ostream& os, const std::deque<int> vect)
+operator<<(std::ostream& os, const std::vector<PmergeMe::member> vector)
 {
-	for (size_t i = 0; i < vect.size(); i++)
-	{
-		os << vect.at(i);
-		if (i + 1 < vect.size())
-			os << " ";
-	}
-	return (os);
-}
+	std::vector<PmergeMe::member>::const_iterator it;
 
-std::ostream&
-operator<<(std::ostream& os, const std::deque<PmergeMe::dequeMember> deque)
-{
-	std::deque<PmergeMe::dequeMember>::const_iterator it;
-
-	it = deque.begin();
-	for (size_t i = 0; i < deque.size(); i++)
+	it = vector.begin();
+	for (size_t i = 0; i < vector.size(); i++)
 	{
 		if (it->pairNum == 0)
 			os << "leftover numbers:	" << it->sequence;
@@ -214,7 +204,7 @@ operator<<(std::ostream& os, const std::deque<PmergeMe::dequeMember> deque)
 			os << it->sequence;
 		}
 		it++;
-		if (it != deque.end())
+		if (it != vector.end())
 			os << "\n";
 	}
 	return (os);
@@ -223,6 +213,6 @@ operator<<(std::ostream& os, const std::deque<PmergeMe::dequeMember> deque)
 std::ostream&
 operator<<(std::ostream& os, const PmergeMe sorter)
 {
-	os << sorter.DequeGetSequence();
+	os << sorter.GetSequence();
 	return (os);
 }

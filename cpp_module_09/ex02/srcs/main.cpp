@@ -12,6 +12,7 @@
 
 #include "PmergeMe.hpp"
 #include <algorithm>
+#include <vector>
 
 int main(int argc, char **argv)
 {
@@ -23,12 +24,17 @@ int main(int argc, char **argv)
 	PmergeMe sorter(TESTSTR);
 	std::cout << "Unsorted: " << sorter << std::endl;
 	gettimeofday(&start, NULL);
-	sorter.DividePairs();
-	sorter.initAndInsert();
+	sorter.DequeDividePairs();
+	sorter.DequeinitAndInsert();
 	gettimeofday(&stop, NULL);
 	std::cout << "Sorted: " << sorter << std::endl;
-	std::cout << "Time taken for PmergeMe in microseconds: " << stop.tv_usec - start.tv_usec << std::endl;
+	std::cout << "Time taken for DequePmergeMe in microseconds: " << stop.tv_usec - start.tv_usec << "us"<< std::endl;
 	
+
+
+
+
+
 	std::vector<int> vect;
 	std::string sequence = TESTSTR;
 
@@ -42,5 +48,5 @@ int main(int argc, char **argv)
 	std::sort(vect.begin(), vect.end());
 	gettimeofday(&stop, NULL);
 	std::cout << "Sorted: " << vect << std::endl;
-	std:: cout << "Time taken for vector microseconds: " << stop.tv_usec - start.tv_usec << std::endl;
+	std:: cout << "Time taken for std::sort on vector: " << stop.tv_usec - start.tv_usec << "us" << std::endl;
 }

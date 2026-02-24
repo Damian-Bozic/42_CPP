@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PMERGEME_HPP
- #define PMERGEME_HPP
+#ifndef PMERGEMEDEQUE_HPP
+ #define PMERGEMEDEQUE_HPP
  #include <list>
  #include <vector>
  #include <deque>
@@ -30,11 +30,11 @@ class PmergeMe
 			B = 'b'
 		};
 
-		struct dequeMember {
+		struct member {
 			std::deque<int>	sequence;
 			enum sideIdentity	pairSide;
 			size_t				pairNum;
-			bool operator>(const dequeMember &other);
+			bool operator>(const member &other);
 		};
 
 		// PmergeMe();
@@ -43,23 +43,23 @@ class PmergeMe
 		~PmergeMe();
 		// PmergeMe& operator=(const PmergeMe& other);
 
-		void DequeDividePairs();
-		void DequeinitAndInsert();
-		void DequeinitMain();
-		void DequeinsertPairs();
-		void DequereInitSeq();
-		std::deque<int> DequeGetSequence() const;
+		void DividePairs();
+		void initAndInsert();
+		void initMain();
+		void insertPairs();
+		void reInitSeq();
+		std::deque<int> GetSequence() const;
 
 	private:
 		std::deque<int> m_seq;
-		std::deque<dequeMember> m_pend;
-		std::deque<dequeMember> m_main;
+		std::deque<member> m_pend;
+		std::deque<member> m_main;
 		size_t m_pairSize;
 };
 
 std::ostream& operator<<(std::ostream&, const std::vector<int>);
 std::ostream& operator<<(std::ostream&, const std::deque<int>);
-std::ostream& operator<<(std::ostream&, const std::deque<PmergeMe::dequeMember>);
+std::ostream& operator<<(std::ostream&, const std::deque<PmergeMe::member>);
 std::ostream& operator<<(std::ostream&, const PmergeMe);
 
 #endif
