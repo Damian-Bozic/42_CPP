@@ -38,6 +38,14 @@ class PmergeMe
 			bool operator==(const vectorElement &other);
 		};
 
+		struct dequeElement {
+			std::deque<int>		sequence;
+			enum sideIdentity	pairSide;
+			size_t				pairNum;
+			bool operator>(const dequeElement &other);
+			bool operator==(const dequeElement &other);
+		};
+
 		// PmergeMe();
 		PmergeMe(std::string);
 		// PmergeMe(PmergeMe &other);
@@ -53,16 +61,32 @@ class PmergeMe
 		void VectorReInitSeq();
 		std::vector<int> VectorGetSequence() const;
 
+		void DequeSort();
+		void DequeDividePairs();
+		void DequeInitMainAndPend();
+		void DequeSplitMainAndPend();
+		std::deque<dequeElement>::iterator DequeFindPendElemToInsert();
+		void DequeInsertPairs();
+		void DequeReInitSeq();
+		std::deque<int> DequeGetSequence() const;
+
 	private:
-		std::vector<int> m_vecSeq;
 		std::vector<int> m_jacobsthal;
+
+		std::vector<int> m_vecSeq;
 		std::vector<vectorElement> m_vecPend;
 		std::vector<vectorElement> m_vecMain;
 		size_t m_vecPairSize; 
+
+		std::deque<int> m_dequeSeq;
+		std::deque<dequeElement> m_dequePend;
+		std::deque<dequeElement> m_dequeMain;
+		size_t m_dequePairSize; 
 };
 
 std::ostream& operator<<(std::ostream&, const std::vector<int>);
 std::ostream& operator<<(std::ostream&, const std::vector<PmergeMe::vectorElement>);
-std::ostream& operator<<(std::ostream&, const PmergeMe);
+std::ostream& operator<<(std::ostream&, const std::deque<int>);
+std::ostream& operator<<(std::ostream&, const std::deque<PmergeMe::dequeElement>);
 
 #endif
