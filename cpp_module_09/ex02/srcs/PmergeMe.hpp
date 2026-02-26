@@ -24,12 +24,14 @@
 class PmergeMe
 {
 	public:
+		// VECTOR AND DEQUE
 		enum sideIdentity {
 			NON_PARTICIPATING,
 			A = 'a',
 			B = 'b'
 		};
 
+		//DEQUE
 		struct dequeMember {
 			std::deque<int>	sequence;
 			enum sideIdentity	pairSide;
@@ -37,29 +39,59 @@ class PmergeMe
 			bool operator>(const dequeMember &other);
 		};
 
-		// PmergeMe();
-		PmergeMe(std::string);
-		// PmergeMe(PmergeMe &other);
-		~PmergeMe();
-		// PmergeMe& operator=(const PmergeMe& other);
+		//VECTOR
+		struct member {
+			std::vector<int>	sequence;
+			enum sideIdentity	pairSide;
+			size_t				pairNum;
+			bool operator>(const member &other);
+		};
 
+		// VECTOR AND DEQUE
+		PmergeMe(std::string);
+		~PmergeMe();
+
+		//DEQUE
 		void DequeDividePairs();
 		void DequeinitAndInsert();
 		void DequeinitMain();
 		void DequeinsertPairs();
 		void DequereInitSeq();
+		void printDequeSeq();
 		std::deque<int> DequeGetSequence() const;
 
+		//VECTOR
+		void DividePairs();
+		void initAndInsert();
+		void initMain();
+		void insertPairs();
+		void reInitSeq();
+		void printVectSeq();
+		std::vector<int> GetSequence() const;
+
 	private:
-		std::deque<int> m_seq;
-		std::deque<dequeMember> m_pend;
-		std::deque<dequeMember> m_main;
-		size_t m_pairSize;
+		//DEQUE
+		std::deque<int> m_dequeSeq;
+		std::deque<dequeMember> m_dequePend;
+		std::deque<dequeMember> m_dequeMain;
+		size_t m_dequePairSize;
+
+		//VECTOR
+		std::vector<int> m_seq;
+		std::vector<member> m_pend;
+		std::vector<member> m_main;
+		size_t m_pairSize; 
 };
 
+//VECTOR AND DEQUE
 std::ostream& operator<<(std::ostream&, const std::vector<int>);
+std::ostream& operator<<(std::ostream&, const PmergeMe);
+
+//DEQUE
 std::ostream& operator<<(std::ostream&, const std::deque<int>);
 std::ostream& operator<<(std::ostream&, const std::deque<PmergeMe::dequeMember>);
-std::ostream& operator<<(std::ostream&, const PmergeMe);
+
+//VECTOR
+std::ostream& operator<<(std::ostream&, const std::vector<PmergeMe::member>);
 
 #endif

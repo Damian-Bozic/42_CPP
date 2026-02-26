@@ -24,6 +24,12 @@ PmergeMe::PmergeMe(std::string sequence) : m_pairSize(2)
 		while (sequence[i] && sequence.at(i) != ' ')
 			i++;
 	}
+	std::string jacobsthal(JACOBSTHAL);
+	for (size_t i = 0; i < jacobsthal.size(); i++) {
+		m_jacobsthal.push_back(atoi(jacobsthal.substr(i, jacobsthal.find_first_of(' ', i)).c_str()));
+		while (jacobsthal[i] && jacobsthal.at(i) != ' ')
+			i++;
+	}
 }
 
 // PmergeMe::PmergeMe(PmergeMe &other)
@@ -43,6 +49,15 @@ PmergeMe::~PmergeMe()
 // }
 
 void
+PmergeMe::Sort()
+{
+	DividePairs();
+	InitMainAndPend();
+	InsertPairs();
+}
+
+/* A recursive function that sorts m_seq to the first stage of the Ford-Johnson algorithm */
+void
 PmergeMe::DividePairs()
 {
 	if (m_seq.size() < m_pairSize) {
@@ -59,8 +74,8 @@ PmergeMe::DividePairs()
 			break ;
 		if (temp.at(leftCheckElement) > temp.at(rightCheckElement)) {
 			for (size_t j = 0; j < m_pairSize / 2; j++) {
-				m_seq.at(i + j) = temp.at(i + j + (m_pairSize / 2)); // left elements change
-				m_seq.at(i + j + (m_pairSize / 2)) = temp.at(i + j); // right elements change
+				m_seq.at(i + j) = temp.at(i + j + (m_pairSize / 2)); // left element
+				m_seq.at(i + j + (m_pairSize / 2)) = temp.at(i + j); // right element
 			}
 		}
 	}
@@ -71,61 +86,46 @@ PmergeMe::DividePairs()
 	this->DividePairs();
 }
 
+/* Initialises m_main and m_pend based off m_seq. This is the second step in the Ford-Johnson algorithm */
 void
-PmergeMe::initAndInsert()
+PmergeMe::InitMainAndPend()
 {
-	initMain();
-	insertPairs();
-}
-
-void
-PmergeMe::initMain()
-{
-	member	memberForInsert;
+	element	elementForInsert;
 	size_t	pairNum = 1;
 	size_t	seq_pos = 0;
 
 	m_pairSize /= 2;
 	for (size_t i = 0; seq_pos + m_pairSize <= m_seq.size(); i++) {
-		memberForInsert.pairNum = pairNum;
+		elementForInsert.pairNum = pairNum;
 		if (i % 2) {
-			memberForInsert.pairSide = A;
+			elementForInsert.pairSide = A;
 			pairNum++;
 		}
 		else
-			memberForInsert.pairSide = B;
+			elementForInsert.pairSide = B;
 		for (size_t j = 0; j < m_pairSize; j++) {
-			memberForInsert.sequence.push_back(m_seq.at(seq_pos + j));
+			elementForInsert.sequence.push_back(m_seq.at(seq_pos + j));
 		}
-		m_main.push_back(memberForInsert);
-		memberForInsert.sequence.clear();
+		m_main.push_back(elementForInsert);
+		elementForInsert.sequence.clear();
 		seq_pos += m_pairSize;
 	}
-	memberForInsert.pairNum = 0;
-	memberForInsert.pairSide = NON_PARTICIPATING;
+	elementForInsert.pairNum = NON_PARTICIPATING;
+	elementForInsert.pairSide = NON_PARTICIPATING;
 	while (seq_pos < m_seq.size()) {
-		memberForInsert.sequence.push_back(m_seq.at(seq_pos));
+		elementForInsert.sequence.push_back(m_seq.at(seq_pos));
 		seq_pos++;
 	}
-	m_main.push_back(memberForInsert);
+	m_main.push_back(elementForInsert);
+	SplitMainAndPend();
 }
 
+/* seperates "b1, a1, a2, ax..., Leftovers" into m_main and "b2, b2, bx..." into m_pend */
 void
-PmergeMe::reInitSeq()
+PmergeMe::SplitMainAndPend()
 {
-	m_seq.clear();
-	for (std::list<member>::iterator it = m_main.begin(); it != m_main.end(); it++)
-		for (size_t i = 0; i < it->sequence.size(); i++)
-			m_seq.push_back(it->sequence.at(i));
-	m_main.clear();
-	m_pend.clear();
-}
-
-void
-PmergeMe::insertPairs()
-{
-	std::list<member> temp = m_main;
-	std::list<member>::iterator tempIt = temp.begin();
+	std::list<element> temp = m_main;
+	std::list<element>::iterator tempIt = temp.begin();
 
 	m_main.clear();
 	m_pend.clear();
@@ -138,30 +138,78 @@ PmergeMe::insertPairs()
 			m_pend.push_back(*tempIt);
 		tempIt++;
 	}
-	// std::cout << "m_main\n" << m_main << std::endl;
-	// std::cout << "m_pend\n" << m_pend << std::endl;
-	// return pend leftover to main
 	m_main.push_back(m_pend.back());
 	m_pend.pop_back();
-	while (!m_pend.empty())
-	{ // Wobbly logic assumes that the ford johnson logic will always be true without actually counting the ford johnson numbers.
-		while (!m_pend.empty()) {
-			for (std::list<member>::iterator mainIt = m_main.begin(); true; mainIt++) {
-				if (*mainIt > m_pend.back()) {
-					m_main.insert(mainIt, m_pend.back());
-					m_pend.pop_back();
-					break;
+}
+
+/* Clears m_seq (container<int>) then refills it with values from m_main (container<element>) */
+void
+PmergeMe::ReInitSeq()
+{
+	m_seq.clear();
+	for (std::list<element>::iterator it = m_main.begin(); it != m_main.end(); it++)
+		for (size_t i = 0; i < it->sequence.size(); i++)
+			m_seq.push_back(it->sequence.at(i));
+	m_main.clear();
+	m_pend.clear();
+}
+
+// #include <unistd.h>
+/* Returns an iterator to the next m_pend element to insert into m_main based off the jacobsthal sequence */
+std::list<PmergeMe::element>::iterator
+PmergeMe::FindPendElemToInsert()
+{ // This could be made more efficient with static variables as it goes through the same search each time
+	size_t i = 1;
+	size_t j;
+	std::list<element>::iterator pendIt;
+	while (m_jacobsthal.at(i)) {
+		j = m_jacobsthal[i] - m_jacobsthal[i - 1];
+		for (size_t k = 0; k < j; k++) {
+			pendIt = m_pend.begin();
+			// std::cout << "looking for " << m_jacobsthal[i] - k << std::endl;
+			// std::cout << "k" << k << std::endl;
+			// sleep(1);
+			while (pendIt != m_pend.end()) {
+				// std::cout << "checking" << pendIt->pairNum << std::endl;
+				if (pendIt->pairNum == m_jacobsthal[i] - k) {
+					// std::cout << "FOUND" << std::endl;
+					return (pendIt);
 				}
+				pendIt++;
 			}
 		}
-		break;
+		i++;
 	}
-	reInitSeq();
-	// std::cout << *this << std::endl;
+	std::cout << "Error: Maximum Jacobsthal number reached" << std::endl;
+	std::cout << "Error: Undefined behaviour expected" << std::endl;
+	return (m_pend.begin());
+}
+
+/* A recursive function that inserts m_pend elements into m_main. Uses the Jacobsthal sequence. This is the third step in the Ford-Johnson Algorithm */
+void
+PmergeMe::InsertPairs()
+{
+	std::list<element>::iterator pendIt;
+	std::list<element>::iterator mainIt;
+	while (!m_pend.empty()) {
+		pendIt = FindPendElemToInsert();
+		mainIt = m_main.begin();
+		while (mainIt != m_main.end() && mainIt->pairNum != pendIt->pairNum) {
+			if (*mainIt > *pendIt)
+				break;
+			mainIt++;
+		}
+		m_main.insert(mainIt, *pendIt);
+		m_pend.remove(*pendIt);
+	}
+	// std::cout << "AFTER SORTING" << std::endl;
+	// std::cout << "m_main:\n" << m_main << std::endl;
+	// std::cout << "m_pend:\n" << m_pend << std::endl;
+	ReInitSeq();
 	if (m_pairSize == 1)
 		return ;
-	initMain();
-	insertPairs();
+	InitMainAndPend();
+	InsertPairs();
 }
 
 std::vector<int>
@@ -171,11 +219,18 @@ PmergeMe::GetSequence() const
 }
 
 bool
-PmergeMe::member::operator>(const member &other)
+PmergeMe::element::operator>(const element &other)
 {
 	return (this->sequence.back() > other.sequence.back());
 }
 
+bool
+PmergeMe::element::operator==(const element &other)
+{
+	if (this->pairSide == other.pairSide && this->pairNum == other.pairNum)
+		return (true);
+	return (false);
+}
 
 std::ostream&
 operator<<(std::ostream& os, const std::vector<int> vect)
@@ -190,17 +245,19 @@ operator<<(std::ostream& os, const std::vector<int> vect)
 }
 
 std::ostream&
-operator<<(std::ostream& os, const std::list<PmergeMe::member> list)
+operator<<(std::ostream& os, const std::list<PmergeMe::element> list)
 {
-	std::list<PmergeMe::member>::const_iterator it;
+	std::list<PmergeMe::element>::const_iterator it = list.begin();
 
-	it = list.begin();
-	for (size_t i = 0; i < list.size(); i++)
-	{
+	if (list.empty()) {
+		os << " empty";
+		return (os);
+	}
+	for (size_t i = 0; i < list.size(); i++) {
 		if (it->pairNum == 0)
-			os << "leftover numbers:	" << it->sequence;
+			os << " leftover numbers:	" << it->sequence;
 		else {
-			os << "element " << static_cast<char>(it->pairSide) << it->pairNum << " holds:	";
+			os << " element " << static_cast<char>(it->pairSide) << it->pairNum << " holds:	";
 			os << it->sequence;
 		}
 		it++;

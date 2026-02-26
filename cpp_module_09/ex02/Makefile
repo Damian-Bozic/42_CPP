@@ -14,7 +14,7 @@ CC = c++
 FLAGS = -Wall -Wextra -Werror -std=c++98
 SRC_DIR = srcs/
 OBJ_DIR = objs/
-SOURCES = main.cpp PmergeMe.cpp
+SOURCES = main.cpp PmergeMeHybrid.cpp
 OBJECTS = $(SOURCES:%.cpp=$(OBJ_DIR)%.o)
 OBJECTS_DIRS = $(addprefix())
 PROGRAM = PmergeMe
