@@ -12,11 +12,6 @@
 
 #include "PmergeMeHybrid.hpp"
 
-// PmergeMe::PmergeMe()
-// {
-
-// }
-
 PmergeMe::PmergeMe(std::string sequence) : m_pairSize(2)
 {
 	for (size_t i = 0; i < sequence.size(); i++) {
@@ -32,21 +27,10 @@ PmergeMe::PmergeMe(std::string sequence) : m_pairSize(2)
 	}
 }
 
-// PmergeMe::PmergeMe(PmergeMe &other)
-// {
-
-// }
-
 PmergeMe::~PmergeMe()
 {
 
 }
-
-// PmergeMe&
-// PmergeMe::operator=(const PmergeMe& other)
-// {
-
-// }
 
 void
 PmergeMe::Sort()
@@ -162,7 +146,7 @@ PmergeMe::FindPendElemToInsert()
 	size_t i = 1;
 	size_t j;
 	std::list<element>::iterator pendIt;
-	while (m_jacobsthal.at(i)) {
+	while (m_jacobsthal.size() > i) {
 		j = m_jacobsthal[i] - m_jacobsthal[i - 1];
 		for (size_t k = 0; k < j; k++) {
 			pendIt = m_pend.begin();
@@ -172,7 +156,6 @@ PmergeMe::FindPendElemToInsert()
 			while (pendIt != m_pend.end()) {
 				// std::cout << "checking" << pendIt->pairNum << std::endl;
 				if (pendIt->pairNum == m_jacobsthal[i] - k) {
-					// std::cout << "FOUND" << std::endl;
 					return (pendIt);
 				}
 				pendIt++;
@@ -180,8 +163,8 @@ PmergeMe::FindPendElemToInsert()
 		}
 		i++;
 	}
-	std::cout << "Error: Maximum Jacobsthal number reached" << std::endl;
-	std::cout << "Error: Undefined behaviour expected" << std::endl;
+	std::cerr << "Error: Maximum Jacobsthal number reached" << std::endl;
+	std::cerr << "Error: Undefined behaviour expected" << std::endl;
 	return (m_pend.begin());
 }
 
@@ -221,6 +204,8 @@ PmergeMe::GetSequence() const
 bool
 PmergeMe::element::operator>(const element &other)
 {
+	if (this->pairSide == NON_PARTICIPATING)
+		return (false);
 	return (this->sequence.back() > other.sequence.back());
 }
 

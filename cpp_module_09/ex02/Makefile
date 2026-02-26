@@ -11,10 +11,10 @@
 # **************************************************************************** #
 
 CC = c++
-FLAGS = -Wall -Wextra -Werror -std=c++98
+FLAGS = -Wall -Wextra -Werror -std=c++98 -g
 SRC_DIR = srcs/
 OBJ_DIR = objs/
-SOURCES = main.cpp PmergeMeHybrid.cpp
+SOURCES = main.cpp PmergeMeDeque.cpp
 OBJECTS = $(SOURCES:%.cpp=$(OBJ_DIR)%.o)
 OBJECTS_DIRS = $(addprefix())
 PROGRAM = PmergeMe
