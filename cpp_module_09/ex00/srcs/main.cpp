@@ -28,23 +28,26 @@
 
 // }
 
-int
-GetYearsInDays(YearMonthDay date);
+// int
+// GetYearsInDays(YearMonthDay date);
 
-short
-GetMonthsInDays(YearMonthDay date);
+// short
+// GetMonthsInDays(YearMonthDay date);
 
-int main(void)
+int main(int argc, char **argv)
 {
-	try {
-		BitcoinExchange test;
-		test.PrintTrueWalletValue();
-	}
-	catch (const std::exception &e)
-	{
-		std::cout << "Error: " << e.what() << std::endl;
+	if (argc != 2) {
+		std::cout << "ERROR: Bad argument count" << std::endl;
 		return (1);
 	}
+	try {
+		BitcoinExchange test(argv[1]);
+		test.PrintWalletOnMarketPrice();
+	}
+	catch (const std::exception &e){
+		std::cout << "ERROR: " << e.what() << std::endl;
+	}
+
 	// YearMonthDay a = {2009, 1, 29};
 	// YearMonthDay b = {2009, 2, 1};
 	// std::cout << a.GetTotalTimeInDays() << std::endl;

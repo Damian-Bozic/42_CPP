@@ -38,10 +38,12 @@ struct YearMonthDay
 	int	month;
 	int	day;
 
+	YearMonthDay();
 	double GetTotalTimeInDays() const;
 	bool operator<(const YearMonthDay& other) const;
 	bool operator==(const YearMonthDay& other) const;
-}; // No way structs can have member functions 💀💀💀💀💀
+	bool valid() const;
+};
 
 typedef std::map<YearMonthDay, float> financeDataMap;
 typedef std::pair<YearMonthDay, float> financeDataPair;
@@ -53,24 +55,27 @@ class BitcoinExchange
 		BitcoinExchange(const BitcoinExchange& other);
 		~BitcoinExchange();
 
+		void ParseExchangeData(std::ifstream &);
+		void ParseWalletData(std::ifstream &);
+
 		BitcoinExchange& operator=(const BitcoinExchange& other);
 		financeDataMap* ReadRateData(std::string fileNameAndDir);
 		financeDataMap* ReadWalletData(std::string fileNameAndDir);
-		void PrintTrueWalletValue(void);
+		void PrintWalletOnMarketPrice(void);
 
-		class NoSuchCSVFile : public std::exception
+		class NoSuchRecordFile : public std::exception
 		{
 			public:
 				const char* what() const throw();
 		};
 
-		class BadCSVFileFormat : public std::exception
+		class BadRecordFileFormat : public std::exception
 		{
 			public:
 				const char* what() const throw();
 		};
 
-		class DuplicateCSVValue : public std::exception
+		class DuplicateRecordValue : public std::exception
 		{
 			public:
 				const char* what() const throw();
@@ -83,6 +88,12 @@ class BitcoinExchange
 		};
 
 		class BadWalletFileFormat : public std::exception
+		{
+			public:
+				const char* what() const throw();
+		};
+
+		class BadWalletEntryFileFormat : public std::exception
 		{
 			public:
 				const char* what() const throw();
@@ -107,8 +118,8 @@ class BitcoinExchange
 		};
 
 	private:
-		financeDataMap *m_walletRecords;
-		financeDataMap *m_rateData;
+		financeDataMap *m_walletData;
+		financeDataMap *m_exchangeData;
 };
 
 #endif
