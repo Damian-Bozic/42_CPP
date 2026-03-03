@@ -14,15 +14,31 @@
 
 PmergeMe::PmergeMe(std::string sequence) : m_vecPairSize(2), m_dequePairSize(2)
 {
+	std::string valueToInsertLiteral;
+	long long valueToInsert;
+	int	j;
+
 	for (size_t i = 0; i < sequence.size(); i++) {
-		m_vecSeq.push_back(atoi(sequence.substr(i, sequence.find_first_of(' ', i)).c_str()));
-		while (sequence[i] && sequence.at(i) != ' ')
-			i++;
-	}
-	for (size_t i = 0; i < sequence.size(); i++) {
-		m_dequeSeq.push_back(atoi(sequence.substr(i, sequence.find_first_of(' ', i)).c_str()));
-		while (sequence[i] && sequence.at(i) != ' ')
-			i++;
+		j = 0;
+		while (i + j < sequence.size() && sequence.at(i + j) != ' ')
+			j++;
+		valueToInsertLiteral = sequence.substr(i, j);
+		if (valueToInsertLiteral.size() == 0)
+			throw (EmptyElement());
+		for (std::string::iterator it = valueToInsertLiteral.begin(); it != valueToInsertLiteral.end(); it++)
+			if (!isdigit(*it))
+				throw (NonNumericElement());
+		valueToInsert = atoll(valueToInsertLiteral.c_str());
+		if (valueToInsertLiteral.size() > 10 || valueToInsert > INT_MAX || valueToInsert < INT_MIN)
+			throw (ElementOutOfBounds());
+		valueToInsert = atoi(valueToInsertLiteral.c_str());
+		if (std::find(m_vecSeq.begin(), m_vecSeq.end(), valueToInsert) != m_vecSeq.end())
+			throw (DuplicateValue());
+		if (valueToInsert < 0)
+			throw (BadInput());
+		m_vecSeq.push_back(valueToInsert);
+		m_dequeSeq.push_back(valueToInsert);
+		i += j;
 	}
 	std::string jacobsthal(JACOBSTHAL);
 	for (size_t i = 0; i < jacobsthal.size(); i++) {
@@ -40,6 +56,8 @@ PmergeMe::~PmergeMe()
 void
 PmergeMe::VectorSort()
 {
+	if (m_vecSeq.size() == 1)
+		return ;
 	VectorDividePairs();
 	VectorInitMainAndPend();
 	VectorInsertPairs();
@@ -262,6 +280,8 @@ operator<<(std::ostream& os, const std::vector<PmergeMe::vectorElement> vector)
 void
 PmergeMe::DequeSort()
 {
+	if (m_dequeSeq.size() == 1)
+		return ;
 	DequeDividePairs();
 	DequeInitMainAndPend();
 	DequeInsertPairs();
@@ -477,4 +497,34 @@ operator<<(std::ostream& os, const std::deque<PmergeMe::dequeElement> deque)
 			os << "\n";
 	}
 	return (os);
+}
+
+const char*
+PmergeMe::DuplicateValue::what() const throw()
+{
+	return ("Found duplicate value in sequence");
+}
+
+const char*
+PmergeMe::BadInput::what() const throw()
+{
+	return ("Bad Input");
+}
+
+const char*
+PmergeMe::ElementOutOfBounds::what() const throw()
+{
+	return ("Element out of bounds. INT_MAX");
+}
+
+const char*
+PmergeMe::EmptyElement::what() const throw()
+{
+	return ("Empty element. Check for multiple spaces");
+}
+
+const char*
+PmergeMe::NonNumericElement::what() const throw()
+{
+	return ("Invalid element. All elements must be numeric");
 }

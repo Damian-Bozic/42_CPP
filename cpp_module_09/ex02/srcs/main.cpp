@@ -18,26 +18,30 @@ int main(int argc, char **argv)
 		std::cout << "ERROR: Bad argument count" << std::endl;
 		return (1);
 	}
-	std::cout << "WARNING: If input contains non-digit characters or numbers outside int range expect undefined behaviour" << std::endl;
-	struct timeval start;
-	struct timeval stop;
-	PmergeMe sorter(argv[1]);
+	try {
+		struct timeval start;
+		struct timeval stop;
+		PmergeMe sorter(argv[1]);
 
-	std::cout << "VECTOR" << std::endl;
-	std::cout << "Unsorted vector: " <<	sorter.VectorGetSequence() << std::endl;;
-	gettimeofday(&start, NULL);
-	sorter.VectorSort();
-	gettimeofday(&stop, NULL);
-	std::cout << "Sorted vector: " << sorter.VectorGetSequence() << std::endl;;
-	std::cout << "Time taken for vector in microseconds: " << stop.tv_usec - start.tv_usec << "us"<< std::endl;
+		std::cout << "VECTOR" << std::endl;
+		std::cout << "Unsorted vector: " <<	sorter.VectorGetSequence() << std::endl;;
+		gettimeofday(&start, NULL);
+		sorter.VectorSort();
+		gettimeofday(&stop, NULL);
+		std::cout << "Sorted vector: " << sorter.VectorGetSequence() << std::endl;;
+		std::cout << "Time taken for vector in microseconds: " << stop.tv_usec - start.tv_usec << "us"<< std::endl;
 
-	std::cout << "DEQUE" << std::endl;
-	std::cout << "Unsorted deque: " << sorter.DequeGetSequence() << std::endl;;
-	gettimeofday(&start, NULL);
-	sorter.DequeSort();
-	gettimeofday(&stop, NULL);
-	std::cout << "Sorted deque: " << sorter.DequeGetSequence() << std::endl;;
-	std::cout << "Time taken for deque in microseconds: " << stop.tv_usec - start.tv_usec << "us"<< std::endl;
+		std::cout << "DEQUE" << std::endl;
+		std::cout << "Unsorted deque: " << sorter.DequeGetSequence() << std::endl;;
+		gettimeofday(&start, NULL);
+		sorter.DequeSort();
+		gettimeofday(&stop, NULL);
+		std::cout << "Sorted deque: " << sorter.DequeGetSequence() << std::endl;;
+		std::cout << "Time taken for deque in microseconds: " << stop.tv_usec - start.tv_usec << "us"<< std::endl;
+	}
+	catch (const std::exception &e) {
+		std::cout << "ERROR: " << e.what() << std::endl;
+	}
 }
 
 // MAIN TO BE USED WITH OTHER FILES

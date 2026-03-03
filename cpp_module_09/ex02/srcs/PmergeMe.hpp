@@ -18,9 +18,13 @@
  #include <iostream>
  #include <cstdlib>
  #include <sys/time.h>
+ #include <algorithm>
  #define TESTSEQ {11, 2, 17, 0, 16, 8, 6, 15, 10, 3, 21, 1, 18, 9, 14, 19, 12, 5, 4, 20, 13, 7}
  #define TESTSTR "11 2 17 0 16 8 6 15 10 3 21 1 18 9 14 19 12 5 4 20 13 7"
  #define JACOBSTHAL "1 3 5 11 21 43 85 171 341 683 1365 2731 5461 10923 21845 43691 87381 174763 349525 699051 1398101 2796203 5592405 11184811 22369621 44739243 89478485 178956971 357913941 715827883 1431655765"
+ #define INT_MAX 2147483647
+ #define INT_MIN -2147483648
+
 class PmergeMe
 {
 	public:
@@ -82,6 +86,31 @@ class PmergeMe
 		std::deque<dequeElement> m_dequePend;
 		std::deque<dequeElement> m_dequeMain;
 		size_t m_dequePairSize; 
+		class DuplicateValue : public std::exception
+		{
+			public:
+				const char* what() const throw();
+		};
+		class BadInput : public std::exception
+		{
+			public:
+				const char* what() const throw();
+		};
+		class ElementOutOfBounds : public std::exception
+		{
+			public:
+				const char* what() const throw();
+		};
+		class NonNumericElement : public std::exception
+		{
+			public:
+				const char* what() const throw();
+		};
+		class EmptyElement : public std::exception
+		{
+			public:
+				const char* what() const throw();
+		};
 };
 
 std::ostream& operator<<(std::ostream&, const std::vector<int>);
