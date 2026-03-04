@@ -12,6 +12,16 @@
 
 #include "PmergeMe.hpp"
 
+void
+findTimeDiff(struct timeval &b, struct timeval &a, struct timeval &result) {
+    result.tv_sec = a.tv_sec - b.tv_sec;
+    result.tv_usec = a.tv_usec - b.tv_usec;
+    if (result.tv_usec < 0) {
+      --(result).tv_sec;
+      (result).tv_usec += 1000000;
+	}
+}
+
 int main(int argc, char **argv)
 {
 	if (argc != 2) {
@@ -21,6 +31,7 @@ int main(int argc, char **argv)
 	try {
 		struct timeval start;
 		struct timeval stop;
+		struct timeval timediff;
 		PmergeMe sorter(argv[1]);
 
 		std::cout << "VECTOR" << std::endl;
@@ -28,16 +39,18 @@ int main(int argc, char **argv)
 		gettimeofday(&start, NULL);
 		sorter.VectorSort();
 		gettimeofday(&stop, NULL);
+		findTimeDiff(start, stop, timediff);
 		std::cout << "Sorted vector: " << sorter.VectorGetSequence() << std::endl;;
-		std::cout << "Time taken for vector in microseconds: " << stop.tv_usec - start.tv_usec << "us"<< std::endl;
+		std::cout << "Time taken for vector in " << timediff.tv_sec << "s and " << timediff.tv_usec << "us" << std::endl;
 
 		std::cout << "DEQUE" << std::endl;
 		std::cout << "Unsorted deque: " << sorter.DequeGetSequence() << std::endl;;
 		gettimeofday(&start, NULL);
 		sorter.DequeSort();
 		gettimeofday(&stop, NULL);
+		findTimeDiff(start, stop, timediff);
 		std::cout << "Sorted deque: " << sorter.DequeGetSequence() << std::endl;;
-		std::cout << "Time taken for deque in microseconds: " << stop.tv_usec - start.tv_usec << "us"<< std::endl;
+		std::cout << "Time taken for vector in " << timediff.tv_sec << "s and " << timediff.tv_usec << "us" << std::endl;
 	}
 	catch (const std::exception &e) {
 		std::cout << "ERROR: " << e.what() << std::endl;
