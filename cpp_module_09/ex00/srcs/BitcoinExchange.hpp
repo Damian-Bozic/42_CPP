@@ -56,12 +56,11 @@ class BitcoinExchange
 		~BitcoinExchange();
 
 		void ParseExchangeData(std::ifstream &);
-		void ParseWalletData(std::ifstream &);
+		void PrintWallet(std::ifstream &);
 
 		BitcoinExchange& operator=(const BitcoinExchange& other);
 		financeDataMap* ReadRateData(std::string fileNameAndDir);
-		financeDataMap* ReadWalletData(std::string fileNameAndDir);
-		void PrintWalletOnMarketPrice(void);
+		financeDataMap* PrintWallet(std::string fileNameAndDir);
 
 		class NoSuchRecordFile : public std::exception
 		{
@@ -118,7 +117,6 @@ class BitcoinExchange
 		};
 
 	private:
-		financeDataMap *m_walletData;
 		financeDataMap *m_exchangeData;
 };
 

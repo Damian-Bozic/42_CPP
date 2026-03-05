@@ -83,8 +83,6 @@ YearMonthDay::valid() const
 	return (true);
 }
 
-
-
 // BITCOINEXCHANGE //
 
 static YearMonthDay
@@ -128,6 +126,7 @@ BitcoinExchange::ParseExchangeData(std::ifstream &recordFile)
 { // TODO have this throw on duplicates or any other errors
 	std::string floatLiteral;
 	std::string buffer;
+	YearMonthDay date;
 	bool firstLine = true;
 
 	while (getline(recordFile, buffer)) {
@@ -139,22 +138,39 @@ BitcoinExchange::ParseExchangeData(std::ifstream &recordFile)
 			continue ;
 		}
 		if (buffer.size() < 12)
-			m_exchangeData->insert(financeDataPair(YearMonthDay(), 0));
+			throw(BadRecordFileFormat());
+		if (buffer.at(4) != '-' || buffer.at(7) != '-' || buffer.at(10) != ',')
+			throw(BadRecordFileFormat());
 		else {
 			floatLiteral = buffer.substr(RATE_VALUE_START, buffer.size() - RATE_VALUE_START).c_str();
 			if (!isValidFloatLiteral(floatLiteral))
-				floatLiteral = -1;
+				throw(BadRecordFileFormat());
 		}
-			m_exchangeData->insert(financeDataPair(ParseDate(buffer), atof(floatLiteral.c_str())));
-		}
-	// std::cout << "HELLO" << std::endl;
+		date = ParseDate(buffer);
+		if (!date.valid())
+			throw(BadRecordFileFormat());
+		if (m_exchangeData->find(date) != m_exchangeData->end())
+			throw(DuplicateRecordValue());
+		m_exchangeData->insert(financeDataPair(date, atof(floatLiteral.c_str())));
+	}
+}
+
+static void
+PrintWalletValueLine(financeDataPair wallet, financeDataMap::iterator itRate)
+{
+	std::cout << wallet.first.year << "-"
+	<< wallet.first.month << "-"
+	<< wallet.first.day << " => "
+	<< wallet.second * itRate->second << std::endl;
 }
 
 void
-BitcoinExchange::ParseWalletData(std::ifstream &walletFile)
+BitcoinExchange::PrintWallet(std::ifstream &walletFile)
 {
 	std::string floatLiteral;
 	std::string buffer;
+	financeDataPair currentPair;
+	financeDataMap::iterator	itRate;
 	bool firstLine = true;
 
 	while (getline(walletFile, buffer)) {
@@ -164,22 +180,53 @@ BitcoinExchange::ParseWalletData(std::ifstream &walletFile)
 				throw(BadWalletFileFormat());
 			continue ;
 		}
-		if (buffer.size() < 14)
-			m_walletData->insert(financeDataPair(YearMonthDay(), 0));
-		else {
-			floatLiteral = buffer.substr(WALLET_VALUE_START, buffer.size() - WALLET_VALUE_START).c_str();
-			if (!isValidFloatLiteral(floatLiteral))
-				floatLiteral = -1;
+		try {
+			if (buffer.size() < 14)
+				throw(BadWalletEntryFileFormat());
+			else 
+				floatLiteral = buffer.substr(WALLET_VALUE_START, buffer.size() - WALLET_VALUE_START).c_str();
+			if (!isValidFloatLiteral(floatLiteral)) {
+				floatLiteral = "-1";
+			}
+			currentPair = financeDataPair(ParseDate(buffer), atof(floatLiteral.c_str()));
+			
+			//BUTCHERED CODE
+			if (buffer.at(4) != '-' || buffer.at(7) != '-' || buffer.at(10) != ' '
+				|| buffer.at(11) != '|' || buffer.at(12) != ' ')
+					throw(BadWalletEntryFileFormat());
+			if (!currentPair.first.valid() || currentPair.second == -1)
+				throw (BadWalletEntryFileFormat());
+			if (currentPair.second > 1000 || currentPair.second < 0)
+				throw (BadWalletValue());
+			itRate = m_exchangeData->begin();
+			
+			for (long unsigned int j = 0; j < m_exchangeData->size(); j++) {
+				if (!itRate->first.valid() || itRate->second == -1) {
+					throw (BadRecordFileFormat());
+				}
+				if (currentPair.first.GetTotalTimeInDays() == itRate->first.GetTotalTimeInDays()) {
+					PrintWalletValueLine(currentPair, itRate);
+					break;
+				}
+				else if (currentPair.first.GetTotalTimeInDays() < itRate->first.GetTotalTimeInDays()) {
+					if (itRate == m_exchangeData->begin())
+						throw(NoPreviousEntry());
+					itRate--;
+					PrintWalletValueLine(currentPair, itRate);
+					break;
+				}
+				itRate++;
+			}
 		}
-		m_walletData->insert(financeDataPair(ParseDate(buffer), atof(floatLiteral.c_str())));
+		catch(const std::exception& e) {
+			std::cerr << "ERROR:" << e.what() << ":" << buffer << '\n';
+		}
 	}
-	// std::cout << "HELLO2" << std::endl;
 }
 
 /* argumented constructor */
 
 BitcoinExchange::BitcoinExchange(std::string walletDataFileName) :
-m_walletData(NULL),
 m_exchangeData(NULL)
 {
 	std::ifstream walletFile(walletDataFileName.c_str());
@@ -190,14 +237,12 @@ m_exchangeData(NULL)
 	if (!recordFile.is_open())
 		throw(NoSuchRecordFile());
 	m_exchangeData = (new financeDataMap());
-	m_walletData = (new financeDataMap());
-	ParseExchangeData(recordFile); // TODO keep as map since it's self sorting,
-	ParseWalletData(walletFile); // TODO update this to be a list as its not self sorting
+	ParseExchangeData(recordFile);
+	PrintWallet(walletFile);
 }
 
 /* copy constructor */
 BitcoinExchange::BitcoinExchange(const BitcoinExchange& other) :
-m_walletData(other.m_walletData),
 m_exchangeData(other.m_exchangeData)
 {
 	*this = other;
@@ -207,7 +252,6 @@ m_exchangeData(other.m_exchangeData)
 BitcoinExchange::~BitcoinExchange()
 {
 	delete m_exchangeData;
-	delete m_walletData;
 }
 
 /* copy assignment constructor */
@@ -217,56 +261,46 @@ BitcoinExchange::operator=(const BitcoinExchange& other)
 	if (this == &other)
 		return (*this);
 	this->m_exchangeData = other.m_exchangeData;
-	this->m_walletData = other.m_walletData;
 	return (*this);
 }
 
-static void
-PrintWalletValueLine(financeDataMap::iterator itWallet, financeDataMap::iterator itRate)
-{
-	std::cout << itWallet->first.year << "-"
-	<< itWallet->first.month << "-"
-	<< itWallet->first.day << " => "
-	<< itWallet->second * itRate->second << std::endl;
-}
-
 /* This could be made more efficient if we could be sure that the input was ordered from oldest to newst*/
-void BitcoinExchange::PrintWalletOnMarketPrice(void)
-{
-	financeDataMap::iterator	itWallet = m_walletData->begin();
-	financeDataMap::iterator	itRate;
+// void BitcoinExchange::PrintWalletOnMarketPrice(void)
+// {
+// 	financeDataMap::iterator	itWallet = m_walletData->begin();
+// 	financeDataMap::iterator	itRate;
 
-	for (long unsigned int i = 0; i < m_walletData->size(); i++) {	
-		try {
-			if (!itWallet->first.valid() || itWallet->second == -1)
-				throw (BadWalletEntryFileFormat());
-			if (itWallet->second > 1000 || itWallet->second < 0)
-				throw (BadWalletValue());
-			itRate = m_exchangeData->begin();
-			for (long unsigned int j = 0; j < m_exchangeData->size(); j++) {
-				if (!itRate->first.valid() || itRate->second == -1) {
-					throw (BadRecordFileFormat());
-				}
-				if (itWallet->first.GetTotalTimeInDays() == itRate->first.GetTotalTimeInDays()) {
-					PrintWalletValueLine(itWallet, itRate);
-					break;
-				}
-				else if (itWallet->first.GetTotalTimeInDays() < itRate->first.GetTotalTimeInDays()) {
-					if (itRate == m_exchangeData->begin())
-						throw(NoPreviousEntry());
-					itRate--;
-					PrintWalletValueLine(itWallet, itRate);
-					break;
-				}
-				itRate++;
-			}
-		}
-		catch (const std::exception &e) {
-			std::cout << "ERROR:" << e.what() << std::endl;
-		}
-		itWallet++;
-	}
-}
+// 	for (long unsigned int i = 0; i < m_walletData->size(); i++) {	
+// 		try {
+// 			if (!itWallet->first.valid() || itWallet->second == -1)
+// 				throw (BadWalletEntryFileFormat());
+// 			if (itWallet->second > 1000 || itWallet->second < 0)
+// 				throw (BadWalletValue());
+// 			itRate = m_exchangeData->begin();
+// 			for (long unsigned int j = 0; j < m_exchangeData->size(); j++) {
+// 				if (!itRate->first.valid() || itRate->second == -1) {
+// 					throw (BadRecordFileFormat());
+// 				}
+// 				if (itWallet->first.GetTotalTimeInDays() == itRate->first.GetTotalTimeInDays()) {
+// 					PrintWalletValueLine(itWallet, itRate);
+// 					break;
+// 				}
+// 				else if (itWallet->first.GetTotalTimeInDays() < itRate->first.GetTotalTimeInDays()) {
+// 					if (itRate == m_exchangeData->begin())
+// 						throw(NoPreviousEntry());
+// 					itRate--;
+// 					PrintWalletValueLine(itWallet, itRate);
+// 					break;
+// 				}
+// 				itRate++;
+// 			}
+// 		}
+// 		catch (const std::exception &e) {
+// 			std::cout << "ERROR:" << e.what() << std::endl;
+// 		}
+// 		itWallet++;
+// 	}
+// }
 
 const char*
 BitcoinExchange::NoSuchRecordFile::what() const throw()
@@ -295,13 +329,13 @@ BitcoinExchange::DuplicateRecordValue::what() const throw()
 const char*
 BitcoinExchange::BadWalletFileFormat::what() const throw()
 {
-	return ("Bad wallet file format. Should be \"date | value\"");
+	return ("Bad wallet file header format. Should be \"date | value\"");
 }
 
 const char*
 BitcoinExchange::BadWalletEntryFileFormat::what() const throw()
 {
-	return ("Bad wallet entry format. YYYY-MM-DD | Balance");
+	return ("Bad wallet entry format");
 }
 
 const char*
