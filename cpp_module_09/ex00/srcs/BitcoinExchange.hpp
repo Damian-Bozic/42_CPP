@@ -19,8 +19,8 @@
  #include <string>
  #include <cstdlib>
 
- #define EXCHANGE_DATA_CSV "srcs/data.csv"
- #define WALLET_DATA_TXT "srcs/input.txt"
+ #define EXCHANGE_DATA_FILE "srcs/data.csv"
+ #define DEFAULT_WALLET_DATA_FILE "srcs/input.txt"
  #define YEAR_START 0
  #define YEAR_END 3
  #define MONTH_START 5
@@ -51,16 +51,12 @@ class BitcoinExchange
 {
 	public:
 		BitcoinExchange();
-		BitcoinExchange(std::string walletRecords);
 		BitcoinExchange(const BitcoinExchange& other);
 		~BitcoinExchange();
 
-		void ParseExchangeData(std::ifstream &);
-		void PrintWallet(std::ifstream &);
-
 		BitcoinExchange& operator=(const BitcoinExchange& other);
-		financeDataMap* ReadRateData(std::string fileNameAndDir);
-		financeDataMap* PrintWallet(std::string fileNameAndDir);
+		void PrintWalletFd(std::ifstream &);
+		void PrintWallet(std::string fileNameAndDir);
 
 		class NoSuchRecordFile : public std::exception
 		{
@@ -104,12 +100,6 @@ class BitcoinExchange
 				const char* what() const throw();
 		};
 
-		class DuplicateWalletValue : public std::exception
-		{
-			public:
-				const char* what() const throw();
-		};
-
 		class NoPreviousEntry : public std::exception
 		{
 			public:
@@ -118,6 +108,8 @@ class BitcoinExchange
 
 	private:
 		financeDataMap *m_exchangeData;
+		// BitcoinExchange(void);
+		void ParseExchangeData(std::ifstream &);
 };
 
 #endif
